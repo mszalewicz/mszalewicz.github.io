@@ -1,0 +1,18 @@
+baseURL = "/"
+languageCode = "en-us"
+theme = "anubis2"
+title = "Maciej Szalewicz"
+
+[author]
+name = "Maciej Szalewicz"
+
+[markup.goldmark.renderer]
+unsafe = true # Enable unsafe mode to have a better experience
+
+[markup.highlight]
+style = 'abap'
+
+[params]
+social = [
+    { id = "github", url = "https://github.com/mszalewicz" }
+]
