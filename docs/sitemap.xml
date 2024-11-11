@@ -3,16 +3,23 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
         <loc>/blog/</loc>
-        <lastmod>2024-11-10T10:20:42+01:00</lastmod>
+        <lastmod>2024-11-10T13:36:16+01:00</lastmod>
       </url><url>
         <loc>/</loc>
+        <lastmod>2024-11-10T13:36:16+01:00</lastmod>
+      </url><url>
+        <loc>/tags/sql/</loc>
         <lastmod>2024-11-10T10:20:42+01:00</lastmod>
       </url><url>
-        <loc>/blog/2024_11_10_sqlite_pitfalls/</loc>
+        <loc>/tags/sqlite/</loc>
+        <lastmod>2024-11-10T10:20:42+01:00</lastmod>
+      </url><url>
+        <loc>/blog/sqlite_pitfalls_1/</loc>
+        <lastmod>2024-11-10T10:20:42+01:00</lastmod>
+      </url><url>
+        <loc>/tags/</loc>
         <lastmod>2024-11-10T10:20:42+01:00</lastmod>
       </url><url>
         <loc>/categories/</loc>
-      </url><url>
-        <loc>/tags/</loc>
       </url>
 </urlset>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+
+    
+
+<html lang="en-us" data-theme="">
+<head>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>SQLite Pitfalls #1 - Maciej Szalewicz</title>
+
+<meta name="description" content="
+
+    
+        #
+    
+    Intro
+
+
+SQLite is the world’s  most widely used database, powering the backends of countless applications. For most software, it offers a reliable solution for embedded data storage, eliminating the need to reinvent the wheel. Its broad adoption means developers benefit from a well-documented, dependable tool with a familiar SQL dialect.">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="/favicon.png">
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.min.184a655c5ad8596648622468e6696abf0cf0a2cf8266df17b4f7a36fe9c97551.css" integrity="sha256-GEplXFrYWWZIYiRo5mlqvwzwos&#43;CZt8XtPejb&#43;nJdVE=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.min.c4c04b3ef88e3d619ad4c7ee5e03048422bc55c4fefdc1f07657c1133670aa22.css" integrity="sha256-xMBLPviOPWGa1MfuXgMEhCK8VcT&#43;/cHwdlfBEzZwqiI=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.min.21c5d8fe0a79d623b0adc1ce4bd4f6dd2c05cd939c9aaaa966ba7186b1464f4d.css" integrity="sha256-IcXY/gp51iOwrcHOS9T23SwFzZOcmqqpZrpxhrFGT00=">
+    
+
+
+
+
+
+
+
+    
+    
+      
+    
+
+    
+      
+        <link rel="stylesheet" href="/css/style.min.e15ea9b06dd2ba15165df509fb7fc0dfc228188afd5b4e94e009008cf11b0ccd.css" integrity="sha256-4V6psG3SuhUWXfUJ&#43;3/A38IoGIr9W06U4AkAjPEbDM0=" crossorigin="anonymous">
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header">
+            
+                <div class="header-top">
+    <div class="header-top-left">
+        <h1 class="site-title noselect">
+    <a href="/">Maciej Szalewicz</a>
+</h1>
+
+        
+
+
+
+
+
+    
+
+
+
+
+        <ul class="social-icons noselect">
+
+
+    
+        <li>
+            <a href="https://github.com/mszalewicz" title="Github" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+
+
+    <li>
+            <a href="/index.xml" title="RSS" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rss"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M4 4a16 16 0 0 1 16 16" /><path d="M4 11a9 9 0 0 1 9 9" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+</ul>
+
+    </div>
+    <div class="header-top-right">
+
+    </div>
+</div>
+
+
+    <nav></nav>
+
+
+
+
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1">
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">SQLite Pitfalls #1</h1>
+                
+
+            </header>
+            
+
+    
+
+
+
+<div class="post-info noselect">
+    
+        <div class="post-date dt-published">
+            <time datetime="2024-11-10">10-11-2024</time>
+            
+        </div>
+    
+
+    <a class="post-hidden-url u-url" href="/blog/sqlite_pitfalls_1/">/blog/sqlite_pitfalls_1/</a>
+    <a href="/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
+
+
+    <div class="post-taxonomies">
+        
+        
+            <ul class="post-tags">
+                
+                    
+                    <li><a href="/tags/sql/">#Sql</a></li>
+                
+                    
+                    <li><a href="/tags/sqlite/">#Sqlite</a></li>
+                
+            </ul>
+        
+        
+    </div>
+</div>
+
+        </div>
+        
+
+  
+  
+
+
+
+
+  
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#weak-out-of-the-box-guarantees">Weak out of the box guarantees</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+
+
+
+<script>
+  var toc = document.querySelector(".toc");
+  if (toc) {
+    toc.addEventListener("click", function () {
+      if (event.target.tagName !== "A") {
+        event.preventDefault();
+        if (this.open) {
+          this.open = false;
+          this.classList.remove("expanded");
+        } else {
+          this.open = true;
+          this.classList.add("expanded");
+        }
+      }
+    });
+  }
+</script>
+
+        <div class="content e-content">
+            <h2 id="intro" >
+<div>
+    <a href="#intro">
+        #
+    </a>
+    Intro
+</div>
+</h2>
+<p>SQLite is the world’s  <a href="https://www.sqlite.org/mostdeployed.html">most widely</a> used database, powering the backends of countless applications. For most software, it offers a reliable solution for embedded data storage, eliminating the need to reinvent the wheel. Its broad adoption means developers benefit from a well-documented, dependable tool with a familiar SQL dialect.</p>
+<p>Recent interest in SQLite has surged, particularly due to its fit for two key technological trends. First, it’s a strong choice for multi-tenant architectures, where platforms like Turso leverage SQLite to give each tenant an isolated database. This setup simplifies data management while maintaining privacy and scalability​. Second, SQLite has found new applications in web-based environments with the rise of WebAssembly (WASM). By embedding SQLite databases directly into browsers, developers can provide fast, local data storage that complements server-side databases. This enables efficient offline functionality and performance gains for web apps​. For a detailed example of this use case, check out Notion’s excelent blog <a href="https://www.notion.so/blog/how-we-sped-up-notion-in-the-browser-with-wasm-sqlite">post</a> on how they sped up their browser app.</p>
+<p>More and more people, myself included, are becoming intrigued by SQLite. However, for those transitioning from other database systems, there are a few surprising differences to discover.</p>
+<h2 id="weak-out-of-the-box-guarantees" >
+<div>
+    <a href="#weak-out-of-the-box-guarantees">
+        #
+    </a>
+    Weak out of the box guarantees
+</div>
+</h2>
+<p>Have you ever wanted to insert a text value into a column designated as a boolean, only to have MySQL prevent it? Me neither. But we also can&rsquo;t guarantee that a new intern won’t get overly enthusiastic one day or that an unexpected parsing bug might someday return a text value instead of a boolean and attempt to insert it into the database. While other databases enforce data types, SQLite, by default, doesn’t prevent inserting different types into columns than the defined type might suggest—unless properly configured. So, let&rsquo;s put this to the test. We will create simple table for products:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#00f">CREATE</span> <span style="color:#00f">TABLE</span> <span style="color:#000">product</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#000">id</span> <span style="color:#000">TEXT</span> <span style="color:#00f">PRIMARY</span> <span style="color:#00f">KEY</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#000">name</span> <span style="color:#000">TEXT</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#00f">type</span> <span style="color:#000">TEXT</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#000">quantity</span> <span style="color:#000">INTEGER</span>
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><p>We will attempt to insert both valid and invalid data into the &lsquo;quantity&rsquo; column, to examine the results of each operation:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#00f">INSERT</span> <span style="color:#00f">INTO</span> <span style="color:#000">product</span> <span style="color:#00f">VALUES</span> (<span style="color:#5a2">&#39;acbdb5a5&#39;</span>, <span style="color:#5a2">&#39;Raspberry Pi 5&#39;</span>, <span style="color:#5a2">&#39;Computer&#39;</span>, <span style="color:#3af">32</span>);
+</span></span><span style="display:flex;"><span><span style="color:#00f">INSERT</span> <span style="color:#00f">INTO</span> <span style="color:#000">product</span> <span style="color:#00f">VALUES</span> (<span style="color:#5a2">&#39;0ac595de&#39;</span>, <span style="color:#5a2">&#39;EW3270U&#39;</span>, <span style="color:#5a2">&#39;Monitor&#39;</span>, <span style="color:#5a2">&#39;a lot&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">SELECT</span> *, <span style="color:#000">typeof</span>(<span style="color:#000">quantity</span>) <span style="color:#00f">FROM</span> <span style="color:#000">product</span>;
+</span></span></code></pre></div><p>I&rsquo;ve added a typeof() conversion to inspect how SQLite stores data underneath. Even if an incorrect data type is inserted into an INTEGER column, the database neither raises an error nor issues a warning. Instead, SQLite joyfully stores the value without any indication of a mismatch. Here is the result of test:</p>
+<pre tabindex="0"><code>+----------+----------------+----------+----------+------------------+
+|    id    |      name      |   type   | quantity | typeof(quantity) |
++----------+----------------+----------+----------+------------------+
+| acbdb5a5 | Raspberry Pi 5 | Computer | 32       | integer          |
+| 0ac595de | EW3270U        | Monitor  | a lot    | text             |
++----------+----------------+----------+----------+------------------+
+</code></pre><p>While insertion of mismatched type described above would lead to error in MySQL:</p>
+<pre tabindex="0"><code>ERROR 1366 (HY000) at line 21: Incorrect integer value: &#39;a lot&#39; for column &#39;quantity&#39; at row 1
+</code></pre><p>Users who are accustomed to other databases and expect standard type enforcement might encounter this SQLite behavior unexpectedly — potentially in a production environment, where it could lead to subtle, hard to diagnose issues. Fortunately, there’s a straightforward solution to enforce stricter type constraints in SQLite, which we’ll discuss after addressing another related pitfall that this solution also mitigates.</p>
+<p>As if mismatched column types weren’t enough, consider this: in SQLite, you can insert NULL values into primary key columns. Surprising, right? By default, SQLite doesn’t enforce NOT NULL constraints on primary key columns unless explicitly set. Now, if the primary key is defined as INTEGER PRIMARY KEY AUTOINCREMENT, inserting a NULL triggers automatic assignment of a unique, incremented integer. But if you’re using a TEXT primary key—such as with UUIDs—SQLite, by default, will accept NULL values even if the column is marked as PRIMARY KEY, which can lead to unexpected issues in data integrity.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#00f">INSERT</span> <span style="color:#00f">INTO</span> <span style="color:#000">product</span> <span style="color:#00f">VALUES</span> (<span style="color:#00f">NULL</span>, <span style="color:#5a2">&#39;ABC&#39;</span>, <span style="color:#5a2">&#39;does not matter&#39;</span>, <span style="color:#5a2">&#39;-∞&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#00f">INSERT</span> <span style="color:#00f">INTO</span> <span style="color:#000">product</span> <span style="color:#00f">VALUES</span> (<span style="color:#00f">NULL</span>, <span style="color:#5a2">&#39;DEF&#39;</span>, <span style="color:#5a2">&#39;still irrelevant&#39;</span>, <span style="color:#5a2">&#39;∞+&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">SELECT</span> * <span style="color:#00f">FROM</span> <span style="color:#000">product</span>;
+</span></span></code></pre></div><p>Result:</p>
+<pre tabindex="0"><code>+----------+----------------+------------------+----------+
+|    id    |      name      |       TYPE       | quantity |
++----------+----------------+------------------+----------+
+| acbdb5a5 | Raspberry Pi 5 | Computer         | 32       |
+| 0ac595de | EW3270U        | Monitor          | a lot    |
+|          | ABC            | does not matter  | -∞       |
+|          | DEF            | still irrelevant | ∞+       |
++----------+----------------+------------------+----------+
+</code></pre><p>Yes, in SQLite, you can indeed insert as many NULL primary keys as you want, without any constraints to prevent this. I haven’t found a definitive explanation for why SQLite, by default, allows both incorrect data types and NULL values in primary key columns. The best rationale I’ve come across suggests that this behavior was chosen to maintain backward compatibility. However, why it was implemented this way initially remains something of a mystery.</p>
+<p>Fortunately, SQLite provides a straightforward solution to enforce stricter type and constraint rules: the <strong>STRICT</strong> table option. By specifying <strong>STRICT</strong> in your table creation schema, you can ensure that SQLite enforces proper type checking and disallows NULL values in primary keys:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#00f">CREATE</span> <span style="color:#00f">TABLE</span> <span style="color:#000">product</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#000">id</span> <span style="color:#000">TEXT</span> <span style="color:#00f">PRIMARY</span> <span style="color:#00f">KEY</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#000">name</span> <span style="color:#000">TEXT</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#00f">type</span> <span style="color:#000">TEXT</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#000">quantity</span> <span style="color:#000">INTEGER</span>
+</span></span><span style="display:flex;"><span>) <span style="color:#00f">STRICT</span>;
+</span></span></code></pre></div><p>With this scheme, when we try to insert:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#00f">INSERT</span> <span style="color:#00f">INTO</span> <span style="color:#000">product</span> <span style="color:#00f">VALUES</span> (<span style="color:#5a2">&#39;0ac595de&#39;</span>, <span style="color:#5a2">&#39;EW3270U&#39;</span>, <span style="color:#5a2">&#39;Monitor&#39;</span>, <span style="color:#5a2">&#39;a lot&#39;</span>);
+</span></span></code></pre></div><p>We will get error:</p>
+<pre tabindex="0"><code>Runtime error: cannot store TEXT value in INTEGER column product.quantity (19)
+</code></pre><p>And trying to insert NULL primary key:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#00f">INSERT</span> <span style="color:#00f">INTO</span> <span style="color:#000">product</span> <span style="color:#00f">VALUES</span> (<span style="color:#00f">NULL</span>, <span style="color:#5a2">&#39;ABC&#39;</span>, <span style="color:#5a2">&#39;does not matter&#39;</span>, <span style="color:#5a2">&#39;∞&#39;</span>);
+</span></span></code></pre></div><p>will result in SQLite rejecting it:</p>
+<pre tabindex="0"><code>Runtime error: NOT NULL constraint failed: product.id (19)
+</code></pre><h2 id="conclusion" >
+<div>
+    <a href="#conclusion">
+        #
+    </a>
+    Conclusion
+</div>
+</h2>
+<p>While the solution to these issues is straightforward, cleaning up the mess left by subtle bugs caused by SQLite’s default behavior can be a challenging and time-consuming process. These were just the first set of the most surprising issues I encountered in my experience with SQLite.</p>
+<p>There are additional quirks and idiosyncrasies that developers should be aware of, such as enabling foreign key constraints (which are off by default), handling the SQLITE_BUSY error when dealing with concurrent database access, and managing large-scale deletions to shrink database size effectively. I’ll explore these topics in my next entry on working with SQLite, where I’ll dive into best practices for addressing these unique aspects of the database.</p>
+<p>Despite these hurdles, I’ve grown quite fond of SQLite, appreciating the versatility and quality of this open-source project. Its unique approach to data storage and lightweight design make it an invaluable tool in many applications. I’m genuinely excited to deepen my understanding of SQLite’s nuances and explore its full potential as I continue working with it.</p>
+        </div>
+
+    </article>
+
+    
+    
+
+    
+        
+        
+    
+
+    
+
+    
+        
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+        </main>
+        
+            <footer class="common-footer noselect">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+
+        <div style="display: flex; align-items: center; gap:8px">
+            ©  2024
+            
+        </div>
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=/ class="p-name u-url url fn" rel="me"></a>
+
+    
+
+    
+</p>
+
+</footer>
+
+        
+    </div>
+</body>
+</html>

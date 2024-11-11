@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 
 
+    
+
 <html lang="en-us" data-theme="">
 <head>
     
@@ -31,22 +33,6 @@
     
 
 
-
-<style>
-  body {
-    visibility: hidden;
-    opacity: 0;
-  }
-</style>
-
-<noscript>
-  <style>
-    body {
-      visibility: visible;
-      opacity: 1;
-    }
-  </style>
-</noscript>
 
 
 
@@ -113,28 +99,18 @@
 
 
 
-
-
-
-
-
+    
+    
+      
     
 
     
-
-
-
-
-
-    
-    
-        
-    
+      
+        <link rel="stylesheet" href="/css/style.min.e15ea9b06dd2ba15165df509fb7fc0dfc228188afd5b4e94e009008cf11b0ccd.css" integrity="sha256-4V6psG3SuhUWXfUJ&#43;3/A38IoGIr9W06U4AkAjPEbDM0=" crossorigin="anonymous">
+      
     
 
-    
-        <script src="/js/script.min.08f04d96386c73c9bf4d160333f8f448c05a6e01c06770542ee0e013954ce930.js" type="text/javascript" charset="utf-8" integrity="sha256-CPBNljhsc8m/TRYDM/j0SMBabgHAZ3BULuDgE5VM6TA="></script>
-    
+
 
 
 
@@ -173,99 +149,9 @@
 
 
 
-
-
-    
-        <div class="theme-switcher">
-            <span class="inline-svg">
-
     
 
 
-    
-    
-    
-    
-    
-
-    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-sun-high"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.828 14.828a4 4 0 1 0 -5.656 -5.656a4 4 0 0 0 5.656 5.656z" /><path d="M6.343 17.657l-1.414 1.414" /><path d="M6.343 6.343l-1.414 -1.414" /><path d="M17.657 6.343l1.414 -1.414" /><path d="M17.657 17.657l1.414 1.414" /><path d="M4 12h-2" /><path d="M12 4v-2" /><path d="M20 12h2" /><path d="M12 20v2" /></svg>
-
-
-</span>
-
-        </div>
-    
-
-    <script>
-        const STORAGE_KEY = 'user-color-scheme'
-        const defaultTheme = "light"
-
-        let currentTheme
-        let switchButton
-        let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
-
-        function switchTheme(e) {
-            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
-            if (localStorage) localStorage.setItem(STORAGE_KEY, currentTheme);
-            document.documentElement.setAttribute('data-theme', currentTheme);
-            changeGiscusTheme(currentTheme);
-            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
-        }
-
-        const autoChangeScheme = e => {
-            currentTheme = e.matches ? 'dark' : 'light'
-            document.documentElement.setAttribute('data-theme', currentTheme);
-            changeGiscusTheme(currentTheme);
-            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            switchButton = document.querySelector('.theme-switcher')
-            currentTheme = detectCurrentScheme()
-
-            if (currentTheme === 'auto') {
-                autoChangeScheme(autoDefinedScheme);
-                autoDefinedScheme.addListener(autoChangeScheme);
-            } else {
-                document.documentElement.setAttribute('data-theme', currentTheme)
-            }
-
-            if (switchButton) {
-                switchButton.addEventListener('click', switchTheme, false)
-            }
-
-            showContent();
-        })
-
-        function detectCurrentScheme() {
-            if (localStorage !== null && localStorage.getItem(STORAGE_KEY)) {
-                return localStorage.getItem(STORAGE_KEY)
-            }
-            if (defaultTheme) {
-                return defaultTheme
-            }
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-
-        function showContent() {
-            document.body.style.visibility = 'visible';
-            document.body.style.opacity = 1;
-        }
-
-        function changeGiscusTheme (theme) {
-            function sendMessage(message) {
-              const iframe = document.querySelector('iframe.giscus-frame');
-              if (!iframe) return;
-              iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
-            }
-
-            sendMessage({
-              setConfig: {
-                theme: theme
-              }
-            });
-        }
-    </script>
 
 
         <ul class="social-icons noselect">

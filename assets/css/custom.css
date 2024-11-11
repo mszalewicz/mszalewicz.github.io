@@ -22,6 +22,8 @@ pre {
     padding-top: 1em;
     padding-bottom: 1em;
     padding-left: 1em;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 @media (max-width: 945px) {

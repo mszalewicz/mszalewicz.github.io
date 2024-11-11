@@ -9,17 +9,17 @@
     
 
     
-    <lastBuildDate>Sun, 10 Nov 2024 10:20:42 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 10 Nov 2024 13:36:16 +0100</lastBuildDate>
     
     <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>SQLite Pitfalls</title>
-      <link>/blog/2024_11_10_sqlite_pitfalls/</link>
+      <title>SQLite Pitfalls #1</title>
+      <link>/blog/sqlite_pitfalls_1/</link>
       <pubDate>Sun, 10 Nov 2024 10:20:42 +0100</pubDate>
       
-      <guid>/blog/2024_11_10_sqlite_pitfalls/</guid>
+      <guid>/blog/sqlite_pitfalls_1/</guid>
       <description>&lt;h2 id=&#34;intro&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#intro&#34;&gt;
@@ -29,11 +29,79 @@
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;SQLite is the world’s  &lt;a href=&#34;https://www.sqlite.org/mostdeployed.html&#34;&gt;most widely&lt;/a&gt; used database, powering the backends of countless applications. For most software, it offers a reliable solution for embedded data storage, eliminating the need to reinvent the wheel. Its broad adoption means developers benefit from a well-documented, dependable tool with a familiar SQL dialect.&lt;/p&gt;
-&lt;br/&gt;
 &lt;p&gt;Recent interest in SQLite has surged, particularly due to its fit for two key technological trends. First, it’s a strong choice for multi-tenant architectures, where platforms like Turso leverage SQLite to give each tenant an isolated database. This setup simplifies data management while maintaining privacy and scalability​. Second, SQLite has found new applications in web-based environments with the rise of WebAssembly (WASM). By embedding SQLite databases directly into browsers, developers can provide fast, local data storage that complements server-side databases. This enables efficient offline functionality and performance gains for web apps​. For a detailed example of this use case, check out Notion’s excelent blog &lt;a href=&#34;https://www.notion.so/blog/how-we-sped-up-notion-in-the-browser-with-wasm-sqlite&#34;&gt;post&lt;/a&gt; on how they sped up their browser app.&lt;/p&gt;
-&lt;br/&gt;
 &lt;p&gt;More and more people, myself included, are becoming intrigued by SQLite. However, for those transitioning from other database systems, there are a few surprising differences to discover.&lt;/p&gt;
-</description>
+&lt;h2 id=&#34;weak-out-of-the-box-guarantees&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#weak-out-of-the-box-guarantees&#34;&gt;
+        #
+    &lt;/a&gt;
+    Weak out of the box guarantees
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Have you ever wanted to insert a text value into a column designated as a boolean, only to have MySQL prevent it? Me neither. But we also can&amp;rsquo;t guarantee that a new intern won’t get overly enthusiastic one day or that an unexpected parsing bug might someday return a text value instead of a boolean and attempt to insert it into the database. While other databases enforce data types, SQLite, by default, doesn’t prevent inserting different types into columns than the defined type might suggest—unless properly configured. So, let&amp;rsquo;s put this to the test. We will create simple table for products:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#000&#34;&gt;id&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;TEXT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;PRIMARY&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;KEY&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#000&#34;&gt;name&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;TEXT&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#00f&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;TEXT&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#000&#34;&gt;quantity&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;INTEGER&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We will attempt to insert both valid and invalid data into the &amp;lsquo;quantity&amp;rsquo; column, to examine the results of each operation:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;VALUES&lt;/span&gt; (&lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;acbdb5a5&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;Raspberry Pi 5&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;Computer&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#3af&#34;&gt;32&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;VALUES&lt;/span&gt; (&lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;0ac595de&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;EW3270U&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;Monitor&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;a lot&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;SELECT&lt;/span&gt; *, &lt;span style=&#34;color:#000&#34;&gt;typeof&lt;/span&gt;(&lt;span style=&#34;color:#000&#34;&gt;quantity&lt;/span&gt;) &lt;span style=&#34;color:#00f&#34;&gt;FROM&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ve added a typeof() conversion to inspect how SQLite stores data underneath. Even if an incorrect data type is inserted into an INTEGER column, the database neither raises an error nor issues a warning. Instead, SQLite joyfully stores the value without any indication of a mismatch. Here is the result of test:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;+----------+----------------+----------+----------+------------------+
+|    id    |      name      |   type   | quantity | typeof(quantity) |
++----------+----------------+----------+----------+------------------+
+| acbdb5a5 | Raspberry Pi 5 | Computer | 32       | integer          |
+| 0ac595de | EW3270U        | Monitor  | a lot    | text             |
++----------+----------------+----------+----------+------------------+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;While insertion of mismatched type described above would lead to error in MySQL:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;ERROR 1366 (HY000) at line 21: Incorrect integer value: &amp;#39;a lot&amp;#39; for column &amp;#39;quantity&amp;#39; at row 1
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Users who are accustomed to other databases and expect standard type enforcement might encounter this SQLite behavior unexpectedly — potentially in a production environment, where it could lead to subtle, hard to diagnose issues. Fortunately, there’s a straightforward solution to enforce stricter type constraints in SQLite, which we’ll discuss after addressing another related pitfall that this solution also mitigates.&lt;/p&gt;
+&lt;p&gt;As if mismatched column types weren’t enough, consider this: in SQLite, you can insert NULL values into primary key columns. Surprising, right? By default, SQLite doesn’t enforce NOT NULL constraints on primary key columns unless explicitly set. Now, if the primary key is defined as INTEGER PRIMARY KEY AUTOINCREMENT, inserting a NULL triggers automatic assignment of a unique, incremented integer. But if you’re using a TEXT primary key—such as with UUIDs—SQLite, by default, will accept NULL values even if the column is marked as PRIMARY KEY, which can lead to unexpected issues in data integrity.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;VALUES&lt;/span&gt; (&lt;span style=&#34;color:#00f&#34;&gt;NULL&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;ABC&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;does not matter&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;-∞&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;VALUES&lt;/span&gt; (&lt;span style=&#34;color:#00f&#34;&gt;NULL&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;DEF&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;still irrelevant&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;∞+&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;SELECT&lt;/span&gt; * &lt;span style=&#34;color:#00f&#34;&gt;FROM&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Result:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;+----------+----------------+------------------+----------+
+|    id    |      name      |       TYPE       | quantity |
++----------+----------------+------------------+----------+
+| acbdb5a5 | Raspberry Pi 5 | Computer         | 32       |
+| 0ac595de | EW3270U        | Monitor          | a lot    |
+|          | ABC            | does not matter  | -∞       |
+|          | DEF            | still irrelevant | ∞+       |
++----------+----------------+------------------+----------+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Yes, in SQLite, you can indeed insert as many NULL primary keys as you want, without any constraints to prevent this. I haven’t found a definitive explanation for why SQLite, by default, allows both incorrect data types and NULL values in primary key columns. The best rationale I’ve come across suggests that this behavior was chosen to maintain backward compatibility. However, why it was implemented this way initially remains something of a mystery.&lt;/p&gt;
+&lt;p&gt;Fortunately, SQLite provides a straightforward solution to enforce stricter type and constraint rules: the &lt;strong&gt;STRICT&lt;/strong&gt; table option. By specifying &lt;strong&gt;STRICT&lt;/strong&gt; in your table creation schema, you can ensure that SQLite enforces proper type checking and disallows NULL values in primary keys:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#000&#34;&gt;id&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;TEXT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;PRIMARY&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;KEY&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#000&#34;&gt;name&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;TEXT&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#00f&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;TEXT&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#000&#34;&gt;quantity&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;INTEGER&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;) &lt;span style=&#34;color:#00f&#34;&gt;STRICT&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With this scheme, when we try to insert:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;VALUES&lt;/span&gt; (&lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;0ac595de&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;EW3270U&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;Monitor&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;a lot&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We will get error:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;Runtime error: cannot store TEXT value in INTEGER column product.quantity (19)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And trying to insert NULL primary key:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#00f&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color:#000&#34;&gt;product&lt;/span&gt; &lt;span style=&#34;color:#00f&#34;&gt;VALUES&lt;/span&gt; (&lt;span style=&#34;color:#00f&#34;&gt;NULL&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;ABC&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;does not matter&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#5a2&#34;&gt;&amp;#39;∞&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;will result in SQLite rejecting it:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;Runtime error: NOT NULL constraint failed: product.id (19)
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;conclusion&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#conclusion&#34;&gt;
+        #
+    &lt;/a&gt;
+    Conclusion
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;While the solution to these issues is straightforward, cleaning up the mess left by subtle bugs caused by SQLite’s default behavior can be a challenging and time-consuming process. These were just the first set of the most surprising issues I encountered in my experience with SQLite.&lt;/p&gt;
+&lt;p&gt;There are additional quirks and idiosyncrasies that developers should be aware of, such as enabling foreign key constraints (which are off by default), handling the SQLITE_BUSY error when dealing with concurrent database access, and managing large-scale deletions to shrink database size effectively. I’ll explore these topics in my next entry on working with SQLite, where I’ll dive into best practices for addressing these unique aspects of the database.&lt;/p&gt;
+&lt;p&gt;Despite these hurdles, I’ve grown quite fond of SQLite, appreciating the versatility and quality of this open-source project. Its unique approach to data storage and lightweight design make it an invaluable tool in many applications. I’m genuinely excited to deepen my understanding of SQLite’s nuances and explore its full potential as I continue working with it.&lt;/p&gt;</description>
     </item>
     
   </channel>

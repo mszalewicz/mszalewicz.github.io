@@ -21,14 +21,14 @@ Have you ever wanted to insert a text value into a column designated as a boolea
 
 ```sql
 CREATE TABLE product (
-  id VARCHAR(8) PRIMARY KEY,
-  name TEXT NOT NULL,
-  type TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  type TEXT,
   quantity INTEGER
 );
 ```
 
-And we will try to insert both correct and faulty data for column 'quantity'and check result of both operations:
+We will attempt to insert both valid and invalid data into the 'quantity' column, to examine the results of each operation:
 
 ``` sql
 INSERT INTO product VALUES ('acbdb5a5', 'Raspberry Pi 5', 'Computer', 32);
@@ -65,7 +65,7 @@ INSERT INTO product VALUES (NULL, 'DEF', 'still irrelevant', '∞+');
 SELECT * FROM product;
 ```
 
-And the result being:
+Result:
 
 ```
 +----------+----------------+------------------+----------+
@@ -85,8 +85,8 @@ Fortunately, SQLite provides a straightforward solution to enforce stricter type
 ```sql
 CREATE TABLE product (
   id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  type TEXT NOT NULL,
+  name TEXT,
+  type TEXT,
   quantity INTEGER
 ) STRICT;
 ```
