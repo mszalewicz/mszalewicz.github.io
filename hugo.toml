@@ -6,13 +6,27 @@ title = "Maciej Szalewicz"
 [author]
 name = "Maciej Szalewicz"
 
+[markup]
+defaultMarkdownHandler = 'goldmark'
+
 [markup.goldmark.renderer]
 unsafe = true # Enable unsafe mode to have a better experience
 
 [markup.highlight]
 style = 'abap'
 
+[pagination]
+pagerSize = 5
+
 [params]
+dateFormat = "02-01-2006"
+readMore = true
+copyCodeButton = false
+paginationSinglePost = false
+toc = true
+customCSS = ["css/custom.css"]
+colorThemeSwitcher = false
+
 social = [
     { id = "github", url = "https://github.com/mszalewicz" }
 ]
