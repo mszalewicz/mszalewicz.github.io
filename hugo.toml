@@ -30,3 +30,7 @@ colorThemeSwitcher = false
 social = [
     { id = "github", url = "https://github.com/mszalewicz" }
 ]
+
+[params.GoogleAnalytics]
+enabled = true
+gtag = "G-NXW3M81BF1"
