@@ -91,6 +91,10 @@ for _, intrface := range interfaces {
 }
 ```
 
+## CIDR and subnet mask
+
+If you're already famililar with concepts, jumpt to [next section]()
+
 [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is a simple notation used to represent an IP address along with its associated subnet mask. The format is `x.x.x.x/y`, where the `x.x.x.x` represents the IP address and `y` indicates the subnet mask's length in bits. For instance, `192.168.1.0/24` means the IP address is masked using the first 24 bits of the address. We'll explore the practical implications of this shortly.
 
 It’s important to understand that CIDR is simply a way to **describe** the combination of an IP address and its subnet mask. The same information can also be expressed in other forms, such as an IP address paired with a hexadecimal representation of the subnet mask.
