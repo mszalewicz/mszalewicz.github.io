@@ -6,6 +6,10 @@ h2 {
     margin-top: 1.5em !important;
 }
 
+p {
+    margin-top: 1.2em;
+}
+
 div.highlight pre {
     white-space: pre-wrap;
     word-break: break-word;
