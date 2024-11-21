@@ -212,16 +212,16 @@ interfaces, err := net.Interfaces()
 }
 
 func incrementIP(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
+	for pos := len(ip) - 1; pos >= 0; pos-- {
+		ip[pos]++
+		if ip[pos] > 0 {
 			break
 		}
 	}
 }
 ```
 
-We are focusing on how the iteration over a given address space is performed. The initialization statement for our loop is `ip := thisMachineIP.Mask(ipNet.Mask)`. This calculates the **network identifier** for the given address and subnet mask.For example, in the network `192.168.1.1/16`, the result would be `192.168.0.0`.
+We are focusing on how the iteration over a given address space is performed. The initialization statement for our loop is `ip := thisMachineIP.Mask(ipNet.Mask)`. This calculates the **network identifier** for the given address and subnet mask. For example, in the network `192.168.1.1/16`, the result would be `192.168.0.0`.
 
 ```go
 for ip := thisMachineIP.Mask(ipNet.Mask); ipNet.Contains(ip); incrementIP(ip) {
@@ -233,13 +233,13 @@ The loop condition, `ipNet.Contains(ip)`, ensures that the loop continues as lon
 
 The final part is the loop statement, executed after each iteration. The `incrementIP(ip)` function increments the bytes of the IP address, starting from the last byte. A key concept here is that when a byte reaches its maximum value of **255**, incrementing it by **1** causes it to wrap around to **0**. For example, if the last byte is `255`, it becomes `0` upon incrementing.
 
-This wrapping mechanism, combined with the condition `if ip[j] > 0 {break}`, creates a natural progression through the address space.
+This wrapping mechanism, combined with the condition `if ip[pos] > 0 {break}`, creates a natural progression through the address space.
 
 ```go
 func incrementIP(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
+	for pos := len(ip) - 1; pos >= 0; pos-- {
+		ip[pos]++
+		if ip[pos] > 0 {
 			break
 		}
 	}
@@ -264,7 +264,7 @@ Then incrementIP(), adds 1 to last byte of address:
 192.168.0.255
 ```
 
-The next call to incrementIP() will reset the last byte to 0. However, since the condition `if ip[j] > 0 {break}` is no longer satisfied (the byte is 0), the loop `for j := len(ip) - 1; j >= 0; j-- {}` continues. In this case, last byte will stay as 0 and the increment will modify the second-to-last byte.
+The next call to incrementIP() will reset the last byte to 0. However, since the condition `if ip[pos] > 0 {break}` is no longer satisfied (the byte is 0), the loop `for pos := len(ip) - 1; pos >= 0; pos-- {}` continues. In this case, last byte will stay as 0 and the increment will modify the second-to-last byte.
 
 ```
 192.168.0.0
