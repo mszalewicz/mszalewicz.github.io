@@ -1,0 +1,231 @@
+<!doctype html><html lang=en-us data-theme><head><meta charset=utf-8><meta name=HandheldFriendly content="True"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>Iterating over local IP addresses in Go - Maciej Szalewicz</title>
+<meta name=description content="While developing an application for local network communication and file transfer, I stumbled upon a simple approach for iterating over valid IP address subsets in Go. The brilliance of this method lies in its simplicity and conciseness. If you&rsquo;d like to jump straight to the code used during the preliminary design phase to establish a local network connection, it’s available here."><link rel=icon type=image/x-icon href=/favicon.ico><link rel=apple-touch-icon-precomposed href=/favicon.png><link rel=stylesheet href=/css/style.min.184a655c5ad8596648622468e6696abf0cf0a2cf8266df17b4f7a36fe9c97551.css integrity="sha256-GEplXFrYWWZIYiRo5mlqvwzwos+CZt8XtPejb+nJdVE="><link rel=stylesheet href=/css/style.min.c4c04b3ef88e3d619ad4c7ee5e03048422bc55c4fefdc1f07657c1133670aa22.css integrity="sha256-xMBLPviOPWGa1MfuXgMEhCK8VcT+/cHwdlfBEzZwqiI="><link rel=stylesheet href=/css/style.min.21c5d8fe0a79d623b0adc1ce4bd4f6dd2c05cd939c9aaaa966ba7186b1464f4d.css integrity="sha256-IcXY/gp51iOwrcHOS9T23SwFzZOcmqqpZrpxhrFGT00="><link rel=stylesheet href=/css/style.min.8cb310d5e1eb05cb21dd23139008b044638577b855051173589b8c67d5b3925e.css integrity="sha256-jLMQ1eHrBcsh3SMTkAiwRGOFd7hVBRFzWJuMZ9Wzkl4=" crossorigin=anonymous><script async src="https://www.googletagmanager.com/gtag/js?id=G-NXW3M81BF1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-NXW3M81BF1")</script></head><body><a class=skip-main href=#main>Skip to main content</a><div class=container><header class=common-header><div class=header-top><div class=header-top-left><h1 class="site-title noselect"><a href=/>Maciej Szalewicz</a></h1><ul class="social-icons noselect"><li><a href=https://github.com/mszalewicz title=Github rel=me><span class=inline-svg><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></span></a></li><li><a href=/index.xml title=RSS rel=me><span class=inline-svg><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-rss"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 19m-1 0a1 1 0 102 0 1 1 0 10-2 0"/><path d="M4 4a16 16 0 0116 16"/><path d="M4 11a9 9 0 019 9"/></svg></span></a></li></ul></div><div class=header-top-right></div></div><nav></nav></header><main id=main tabindex=-1><article class="post h-entry"><div class=post-header><header><h1 class="p-name post-title">Iterating over local IP addresses in Go</h1></header><div class="post-info noselect"><div class="post-date dt-published"><time datetime=2024-11-19>19-11-2024</time></div><a class="post-hidden-url u-url" href=/blog/iterating_over_local_ip_addresses_in_go/>/blog/iterating_over_local_ip_addresses_in_go/</a>
+<a href=/ class="p-name p-author post-hidden-author h-card" rel=me></a><div class=post-taxonomies><ul class=post-tags><li><a href=/tags/go/>#Go</a></li><li><a href=/tags/network/>#Network</a></li></ul></div></div></div><details class="toc noselect"><summary>Table of Contents</summary><div class=inner><nav id=TableOfContents><ul><li><a href=#building-logic-in-go>Building logic in Go</a></li><li><a href=#cidr-and-subnet-mask>CIDR and subnet mask</a></li><li><a href=#code_continued>Code continued</a></li><li><a href=#footnotes>Footnotes</a></li></ul></nav></div></details><script>var toc=document.querySelector(".toc");toc&&toc.addEventListener("click",function(){event.target.tagName!=="A"&&(event.preventDefault(),this.open?(this.open=!1,this.classList.remove("expanded")):(this.open=!0,this.classList.add("expanded")))})</script><div class="content e-content"><p>While developing an application for local network communication and file transfer, I stumbled upon a simple approach for iterating over valid IP address subsets in Go. The brilliance of this method lies in its simplicity and conciseness. If you&rsquo;d like to jump straight to the code used during the preliminary design phase to establish a local network connection, it’s available <a href=https://github.com/mszalewicz/workbench/blob/main/local_network_receive_send/main.go>here</a>.</p><p>We aim to iterate over valid local IP addresses to identify potential instances of our application. For each candidate, we will attempt to establish a &ldquo;handshake&rdquo; using our own protocol. Specifically, interactions between application instances will occur over TCP, which guarantees that the order of data chunks sent between peers is managed by the Transmission Control Protocol. This will simplify our approach as we won&rsquo;t need to handle data ordering manually. Building on this foundation, we will design our own messaging scheme.</p><p>To achieve our objectives, we first need to discover candidate devices. We&rsquo;ll use Go’s net package to:</p><ul><li>Iterate over the network interfaces of the host machine.</li><li>Identify the IP addresses assigned to each interface.</li><li>Ensure that the local network address is assigned to at least one interface (i.e., confirm the machine is connected to the local network via Ethernet or Wi-Fi).</li><li>Search for potential application instances on the local network.</li><li>Establish a connection to confirm the receiver is a valid instance.</li></ul><p>Currently, most routers use the <strong>192.168.1.0/24</strong> subnet for local networks. This raises a valid question: Why check all interfaces and manually iterate over usable addresses? Why not simplify the process by scanning the 254 possible addresses (excluding <strong>192.168.1.0</strong> as the network identifier and <strong>192.168.1.255</strong> as the broadcast address)? There are two reasons for this approach:</p><ol><li>To gain experience and build tools for situations where the address space is unknown ahead of time.</li><li>To make the process adaptable for future support of IPv6 (i.e. fe80::/64).</li></ol><h2 id=building-logic-in-go><div><a href=#building-logic-in-go>#
+</a>Building logic in Go</div></h2><p>First, we need to identify the network interfaces available on the machine. We retrieve a list of interfaces that represent the various network adapters present, such as Ethernet or Wi-Fi:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000>interfaces</span>, <span style=color:#000>err</span> := <span style=color:#000>net</span>.<span style=color:#000>Interfaces</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>	<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Next, we iterate through the collection of interfaces to examine the IP addresses assigned to each one. This step helps us determine the addresses that are bound to the host machine:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000>interfaces</span>, <span style=color:#000>err</span> := <span style=color:#000>net</span>.<span style=color:#000>Interfaces</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>	<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#00f>for</span> <span style=color:#000>_</span>, <span style=color:#000>intrface</span> := <span style=color:#00f>range</span> <span style=color:#000>interfaces</span> {
+</span></span><span style=display:flex><span>	<span style=color:#000>addresses</span>, <span style=color:#000>err</span> := <span style=color:#000>intrface</span>.<span style=color:#000>Addrs</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>While processing <code>addresses</code>, we are:</p><ol><li><strong>parsing the CIDR Format</strong>: Each address is analyzed in CIDR (Classless Inter-Domain Routing) notation. We will explain what CIDR is in the next non-code paragraph.</li><li><strong>checking for IPv4</strong>: For now, we focus solely on IPv4 addresses, as these are the ones relevant to our goal.</li><li><strong>filtering for &ldquo;192.168&rdquo;</strong>: We specifically look for addresses in the <code>192.168.x.x</code> range, which is part of the IPv4 space reserved for small local networks. For more details, refer to <a href=https://datatracker.ietf.org/doc/html/rfc1918>RFC 1918</a>.</li></ol><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000>interfaces</span>, <span style=color:#000>err</span> := <span style=color:#000>net</span>.<span style=color:#000>Interfaces</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>	<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#00f>for</span> <span style=color:#000>_</span>, <span style=color:#000>intrface</span> := <span style=color:#00f>range</span> <span style=color:#000>interfaces</span> {
+</span></span><span style=display:flex><span>	<span style=color:#000>addresses</span>, <span style=color:#000>err</span> := <span style=color:#000>intrface</span>.<span style=color:#000>Addrs</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#00f>for</span> <span style=color:#000>_</span>, <span style=color:#000>address</span> := <span style=color:#00f>range</span> <span style=color:#000>addresses</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#000>thisMachineIP</span>, <span style=color:#000>ipNet</span>, <span style=color:#000>err</span> := <span style=color:#000>net</span>.<span style=color:#000>ParseCIDR</span>(<span style=color:#000>address</span>.<span style=color:#000>String</span>())
+</span></span><span style=display:flex><span>		<span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#00f>if</span> <span style=color:#000>thisMachineIP</span>.<span style=color:#000>To4</span>() == <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#00f>continue</span>
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#00f>if</span> <span style=color:#000>strings</span>.<span style=color:#000>HasPrefix</span>(<span style=color:#000>thisMachineIP</span>.<span style=color:#000>String</span>(), <span style=color:#5a2>&#34;192.168&#34;</span>) {
+</span></span><span style=display:flex><span>		    ...
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=cidr-and-subnet-mask><div><a href=#cidr-and-subnet-mask>#
+</a>CIDR and subnet mask</div></h2><p>If you&rsquo;re already famililar with concepts, jumpt to <a href=#code_continued>next section</a></p><p><a href=https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>CIDR</a> is a simple notation used to represent an IP address along with its associated subnet mask. The format is <code>x.x.x.x/y</code>, where the <code>x.x.x.x</code> represents the IP address and <code>y</code> indicates the subnet mask&rsquo;s length in bits. For instance, <code>192.168.1.0/24</code> means the IP address is masked using the first 24 bits of the address. We&rsquo;ll explore the practical implications of this shortly.</p><p>It’s important to understand that CIDR is simply a way to <strong>describe</strong> the combination of an IP address and its subnet mask. The same information can also be expressed in other forms, such as an IP address paired with a hexadecimal representation of the subnet mask.</p><p>When inspecting the interfaces on a host machine using commands like <code>ifconfig</code> (macOS), <code>ip addr</code> (Linux), or <code>ipconfig</code> (Windows), you might encounter output similar to this:</p><pre tabindex=0><code>...
+
+inet 192.168.1.24 netmask 0xffffff00 broadcast 192.168.1.255
+
+...
+</code></pre><p>This specific example is what I retrieved from my own machine. Here, the <strong>24</strong> in the <code>192.168.1.24</code> address indicates that the interface was assigned this unique address by the local router. On another machine, you might see a different value for the last part of the IP address. Last part of the IP address is stored in 1 byte, it can range between <strong>1</strong> and <strong>254</strong> (the first and last values in the range are reserved, so the total is not 256). The specific value assigned depends on the router and the network configuration. It&rsquo;s important to note that this IP address is <strong>unique</strong> to your machine within the local network.</p><p>Important detail in the <code>ifconfig</code> output above is the subnet mask represented as a hexadecimal number. In the example, the subnet mask is shown as <code>0xffffff00</code>.</p><p>To explain briefly, hexadecimal numbers use two characters to represent each byte of information. Breaking down <code>0xffffff00</code> into four parts gives <code>[ff] [ff] [ff] [00]</code>. Each <code>ff</code> corresponds to 8 bits (since <code>ff</code> in hex equals 255 in decimal, which is 8 ones in binary), and <code>00</code> corresponds to 0 bits. Adding these together gives a total of 24 bits, aligning with the /24 in CIDR notation.</p><pre tabindex=0><code>192.168.1.24/24 is equivalent to 192.168.1.24 0xffffff00
+</code></pre><p>Great, now we know two ways to write a subnet mask, but what does it actually mean? Network bit masking is a method to divide an IP address into two parts: the network portion and the device (host) portion. A subnet mask, such as <code>ffffff00</code> in hexadecimal, represents a binary pattern of <code>11111111.11111111.11111111.00000000</code> in bits. This means the first 24 bits are reserved for identifying the network, while the remaining 8 bits are for individual devices within that network. To visualise:</p><pre tabindex=0><code>        FF    FF     FF    00
+
+         │    │       │    │
+     ┌───┘    │       │    └───┐
+     │        │       │        │        hexadecimal to binary
+     │        │       │        │
+     ▼        ▼       ▼        ▼
+
+ 11111111.11111111.11111111.00000000
+
+     │         │     │         │
+     │         │     │         │        binary to IP notation
+     │         │     │         │
+     └───┐     │     │    ┌────┘
+         ▼     ▼     ▼    ▼
+
+        255 . 255 . 255 . 0
+
+         │     │     │    │
+         │     │     │    │             map between mask and IP address
+         │     │     │    │
+         ▽     ▽     ▽    ▽
+
+
+        192 . 168 .  1  . 1
+        ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬   ▲
+        └──────┬──────┘   └───────┐
+               │                  │
+
+        network portion      host portion
+</code></pre><h2 id=code_continued><div><a href=#code_continued>#
+</a>Code continued</div></h2><p>Now that we understand masking, we can implement the search for candidate entries to check if they are instances of our application within the local network. Below is the final version of the code, with <code>highlighted</code> parts showing the changes made from the previous version. In brief, we create a goroutine for each valid address within the range defined by the subnet mask. Each goroutine attempts to establish a TCP connection on port <code>44444</code>. This port was chosen to avoid conflicts with known reserved ports, but it might be changed in the final version of the application. If a valid connection is established, we print the candidate network address for further verification.</p><p>We’ll discuss the most interesting part below.</p><div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;display:grid><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;display:grid><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span></span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span></span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span></span><span style=background-color:#e5e5e5><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span></span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;display:grid><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#00f>func</span> <span style=color:#000>findAddresses</span>() {
+</span></span><span style=display:flex><span><span style=color:#000>interfaces</span>, <span style=color:#000>err</span> := <span style=color:#000>net</span>.<span style=color:#000>Interfaces</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#00f>for</span> <span style=color:#000>_</span>, <span style=color:#000>intrface</span> := <span style=color:#00f>range</span> <span style=color:#000>interfaces</span> {
+</span></span><span style=display:flex><span>		<span style=color:#000>addresses</span>, <span style=color:#000>err</span> := <span style=color:#000>intrface</span>.<span style=color:#000>Addrs</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#00f>for</span> <span style=color:#000>_</span>, <span style=color:#000>address</span> := <span style=color:#00f>range</span> <span style=color:#000>addresses</span> {
+</span></span><span style=display:flex><span>			<span style=color:#000>thisMachineIP</span>, <span style=color:#000>ipNet</span>, <span style=color:#000>err</span> := <span style=color:#000>net</span>.<span style=color:#000>ParseCIDR</span>(<span style=color:#000>address</span>.<span style=color:#000>String</span>())
+</span></span><span style=display:flex><span>			<span style=color:#00f>if</span> <span style=color:#000>err</span> != <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>				<span style=color:#000>log</span>.<span style=color:#000>Fatal</span>(<span style=color:#000>err</span>)
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>			<span style=color:#00f>if</span> <span style=color:#000>thisMachineIP</span>.<span style=color:#000>To4</span>() == <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex><span>				<span style=color:#00f>continue</span>
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span>			<span style=color:#00f>var</span> <span style=color:#000>wg</span> <span style=color:#000>sync</span>.<span style=color:#000>WaitGroup</span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span>			<span style=color:#000>targetPort</span> := <span style=color:#5a2>&#34;44444&#34;</span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span>			<span style=color:#000>timeout</span> := <span style=color:#3af>500</span> * <span style=color:#000>time</span>.<span style=color:#000>Millisecond</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>			<span style=color:#00f>if</span> <span style=color:#000>strings</span>.<span style=color:#000>HasPrefix</span>(<span style=color:#000>thisMachineIP</span>.<span style=color:#000>String</span>(), <span style=color:#5a2>&#34;192.168&#34;</span>) {
+</span></span><span style=display:flex;background-color:#e5e5e5><span>				<span style=color:#00f>for</span> <span style=color:#000>ip</span> := <span style=color:#000>thisMachineIP</span>.<span style=color:#000>Mask</span>(<span style=color:#000>ipNet</span>.<span style=color:#000>Mask</span>); <span style=color:#000>ipNet</span>.<span style=color:#000>Contains</span>(<span style=color:#000>ip</span>); <span style=color:#000>incrementIP</span>(<span style=color:#000>ip</span>) {
+</span></span><span style=display:flex;background-color:#e5e5e5><span>					<span style=color:#000>wg</span>.<span style=color:#000>Add</span>(<span style=color:#3af>1</span>)
+</span></span><span style=display:flex;background-color:#e5e5e5><span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span>					<span style=color:#00f>go</span> <span style=color:#00f>func</span>(<span style=color:#000>ip</span> <span style=color:#00f>string</span>) {
+</span></span><span style=display:flex;background-color:#e5e5e5><span>						<span style=color:#00f>defer</span> <span style=color:#000>wg</span>.<span style=color:#000>Done</span>()
+</span></span><span style=display:flex;background-color:#e5e5e5><span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span>						<span style=color:#000>conn</span>, <span style=color:#000>err</span> := <span style=color:#000>net</span>.<span style=color:#000>DialTimeout</span>(<span style=color:#5a2>&#34;tcp&#34;</span>, <span style=color:#000>address</span>, <span style=color:#000>timeout</span>)
+</span></span><span style=display:flex;background-color:#e5e5e5><span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span>						<span style=color:#00f>if</span> <span style=color:#000>err</span> == <span style=color:#00f>nil</span> {
+</span></span><span style=display:flex;background-color:#e5e5e5><span>							<span style=color:#000>fmt</span>.<span style=color:#000>Printf</span>(<span style=color:#5a2>&#34;Server candidate found at %s\n&#34;</span>, <span style=color:#000>address</span>)
+</span></span><span style=display:flex;background-color:#e5e5e5><span>							<span style=color:#000>conn</span>.<span style=color:#000>Close</span>()
+</span></span><span style=display:flex;background-color:#e5e5e5><span>						}
+</span></span><span style=display:flex;background-color:#e5e5e5><span>					}(<span style=color:#000>ip</span>.<span style=color:#000>String</span>())
+</span></span><span style=display:flex;background-color:#e5e5e5><span>				}
+</span></span><span style=display:flex;background-color:#e5e5e5><span>				<span style=color:#000>wg</span>.<span style=color:#000>Wait</span>()
+</span></span><span style=display:flex;background-color:#e5e5e5><span>			}
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span><span style=color:#00f>func</span> <span style=color:#000>incrementIP</span>(<span style=color:#000>ip</span> <span style=color:#000>net</span>.<span style=color:#000>IP</span>) {
+</span></span><span style=display:flex;background-color:#e5e5e5><span>	<span style=color:#00f>for</span> <span style=color:#000>j</span> := <span style=color:#000>len</span>(<span style=color:#000>ip</span>) - <span style=color:#3af>1</span>; <span style=color:#000>j</span> &gt;= <span style=color:#3af>0</span>; <span style=color:#000>j</span>-- {
+</span></span><span style=display:flex;background-color:#e5e5e5><span>		<span style=color:#000>ip</span>[<span style=color:#000>j</span>]++
+</span></span><span style=display:flex;background-color:#e5e5e5><span>		<span style=color:#00f>if</span> <span style=color:#000>ip</span>[<span style=color:#000>j</span>] &gt; <span style=color:#3af>0</span> {
+</span></span><span style=display:flex;background-color:#e5e5e5><span>			<span style=color:#00f>break</span>
+</span></span><span style=display:flex;background-color:#e5e5e5><span>		}
+</span></span><span style=display:flex;background-color:#e5e5e5><span>	}
+</span></span><span style=display:flex;background-color:#e5e5e5><span>}
+</span></span></code></pre></td></tr></table></div></div><p>We are focusing on how the iteration over a given address space is performed. The initialization statement for our loop is <code>ip := thisMachineIP.Mask(ipNet.Mask)</code>. This calculates the <strong>network identifier</strong> for the given address and subnet mask.For example, in the network <code>192.168.1.1/16</code>, the result would be <code>192.168.0.0</code>.</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#00f>for</span> <span style=color:#000>ip</span> := <span style=color:#000>thisMachineIP</span>.<span style=color:#000>Mask</span>(<span style=color:#000>ipNet</span>.<span style=color:#000>Mask</span>); <span style=color:#000>ipNet</span>.<span style=color:#000>Contains</span>(<span style=color:#000>ip</span>); <span style=color:#000>incrementIP</span>(<span style=color:#000>ip</span>) {
+</span></span><span style=display:flex><span>		...
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The loop condition, <code>ipNet.Contains(ip)</code>, ensures that the loop continues as long as the current IP address is within the range of valid addresses in the target network.</p><p>The final part is the loop statement, executed after each iteration. The <code>incrementIP(ip)</code> function increments the bytes of the IP address, starting from the last byte. A key concept here is that when a byte reaches its maximum value of <strong>255</strong>, incrementing it by <strong>1</strong> causes it to wrap around to <strong>0</strong>. For example, if the last byte is <code>255</code>, it becomes <code>0</code> upon incrementing.</p><p>This wrapping mechanism, combined with the condition <code>if ip[j] > 0 {break}</code>, creates a natural progression through the address space.</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#00f>func</span> <span style=color:#000>incrementIP</span>(<span style=color:#000>ip</span> <span style=color:#000>net</span>.<span style=color:#000>IP</span>) {
+</span></span><span style=display:flex><span>	<span style=color:#00f>for</span> <span style=color:#000>j</span> := <span style=color:#000>len</span>(<span style=color:#000>ip</span>) - <span style=color:#3af>1</span>; <span style=color:#000>j</span> &gt;= <span style=color:#3af>0</span>; <span style=color:#000>j</span>-- {
+</span></span><span style=display:flex><span>		<span style=color:#000>ip</span>[<span style=color:#000>j</span>]++
+</span></span><span style=display:flex><span>		<span style=color:#00f>if</span> <span style=color:#000>ip</span>[<span style=color:#000>j</span>] &gt; <span style=color:#3af>0</span> {
+</span></span><span style=display:flex><span>			<span style=color:#00f>break</span>
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Let&rsquo;s illustrate this with an example. Initial condition results in:</p><pre tabindex=0><code>192.168.0.0
+</code></pre><p>Then incrementIP(), adds 1 to last byte of address:</p><pre tabindex=0><code>192.168.0.0
+192.168.0.1
+192.168.0.2
+...
+192.168.0.253
+192.168.0.254
+192.168.0.255
+</code></pre><p>The next call to incrementIP() will reset the last byte to 0. However, since the condition <code>if ip[j] > 0 {break}</code> is no longer satisfied (the byte is 0), the loop <code>for j := len(ip) - 1; j >= 0; j-- {}</code> continues. In this case, last byte will stay as 0 and the increment will modify the second-to-last byte.</p><pre tabindex=0><code>192.168.0.0
+192.168.0.1
+192.168.0.2
+...
+192.168.0.253
+192.168.0.254
+192.168.0.255
+192.168.1.0
+</code></pre><p>The process will continue until it reaches <code>192.168.255.255</code>, as the next value falls outside the scope of our example network. As you can see, the entire process of iterating through the given address space is achieved in a concise and self-describing manner. This approach efficiently handles address progression without requiring complex logic. The simplicity and clarity of the method make it easy to understand and implement in context involving IP address manipulation.</p><h2 id=footnotes><div><a href=#footnotes>#
+</a>Footnotes</div></h2><ul><li>In the code, I spawn a new goroutine for each address that needs to be checked. It’s important to note that this approach can put a strain on your system resources. For a typical local network, there are up to 254 addresses to check, meaning the same number of goroutines may be created in the worst-case scenario. This is manageable. However, since each goroutine waits for a TCP response, their lifecycle is extended, which can create bottlenecks. During testing with a larger network like <code>192.168.0.0/16</code>, the program ran into crashes. In this case, theoretically as many as 65,534 goroutines could be created. A more efficient strategy would involve using a goroutine pool, where goroutines are recycled as tasks are completed. For simplicity and to keep the focus on the program&rsquo;s core logic, I decided not to implement a goroutine pool in this example.</li></ul></div></article></main><footer class="common-footer noselect"><div class=common-footer-bottom><div style=display:flex;align-items:center;gap:8px>© 2024</div></div><p class="h-card vcard"><a href=/ class="p-name u-url url fn" rel=me></a></p></footer></div></body></html>
