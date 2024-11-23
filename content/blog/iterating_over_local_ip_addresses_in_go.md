@@ -1,6 +1,6 @@
 ---
 title: "Iterating over local IP addresses in Go"
-date: 2024-11-22T00:00:00+01:00
+date: 2024-11-23T00:00:00+01:00
 tags: ["go", "network"]
 draft: false
 ---
