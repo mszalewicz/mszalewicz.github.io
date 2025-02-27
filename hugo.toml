@@ -30,7 +30,7 @@ rssAsSocialIcon = false
 
 social = [
     { id = "github", url = "https://github.com/mszalewicz" },
-    { id = "linkedin", url = "https://www.linkedin.com/" }
+    { id = "linkedin", url = "https://www.linkedin.com/in/maciej-szalewicz" }
 ]
 
 [params.GoogleAnalytics]
