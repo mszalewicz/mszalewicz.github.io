@@ -1,6 +1,6 @@
 ---
-title: "SQLite Pitfalls #1"
-date: 2024-11-10T10:20:42+01:00
+title: "SQLite Pitfalls"
+date: 2024-11-11T10:20:42+01:00
 tags: ["SQL", "SQLite"]
 draft: false
 ---

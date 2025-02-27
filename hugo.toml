@@ -26,9 +26,11 @@ paginationSinglePost = false
 toc = true
 customCSS = ["css/custom.css"]
 colorThemeSwitcher = false
+rssAsSocialIcon = false
 
 social = [
-    { id = "github", url = "https://github.com/mszalewicz" }
+    { id = "github", url = "https://github.com/mszalewicz" },
+    { id = "linkedin", url = "https://www.linkedin.com/" }
 ]
 
 [params.GoogleAnalytics]
