@@ -9,3 +9,5 @@ AI assistants are limited when it comes to real work, because they're stuck with
 <!--more-->
 
 The protocol uses a straightforward client-server setup where the AI acts as a client and your tools implement MCP servers. It handles the usual concerns like permissions and sandboxing so your AI can't accidentally nuke your production database. The main benefit is that you write one MCP server implementation and it works with any compatible AI, rather than building separate integrations for Claude, ChatGPT, and whatever else you're using. Makes sense if you want AI that can actually interact with your existing systems instead of just generating text.
+
+![MCP Diagram](/images/iterating_over_local_ip_addresses_in_go/mcp_diagram.png)
