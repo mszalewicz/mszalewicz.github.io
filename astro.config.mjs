@@ -9,7 +9,7 @@ import { transformerNotationHighlight, transformerNotationDiff } from "@shikijs/
 // https://astro.build/config
 export default defineConfig({
     site: "https://mszalewicz.github.io",
-    base: "/docs",
+    // base: "/docs",
     integrations: [mdx(), sitemap()],
     markdown: {
         shikiConfig: {
