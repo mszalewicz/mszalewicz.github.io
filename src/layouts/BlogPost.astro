@@ -1,0 +1,108 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import Header from "../components/Header.astro";
+
+type Props = CollectionEntry<"blog">["data"];
+
+const { title, description, pubDate, updatedDate } = Astro.props;
+---
+
+<html lang="en">
+    <head>
+        <BaseHead title={title} description={description} />
+        <style>
+            main {
+                max-width: calc(100% - 2em);
+                width: 950px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .title-card {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 320px;
+                padding: 2em;
+                margin: 1em auto 0.5em;
+                border: 1px solid rgba(var(--gray), 0.3);
+                border-radius: 12px;
+                background: linear-gradient(135deg, #ffffff 15%, #9c9ca0 85%);
+                text-align: center;
+                max-width: 800px;
+                box-shadow: var(--box-shadow);
+            }
+            .title-card h1 {
+                margin: 0;
+                color: #2337ff;
+                line-height: 1.2;
+                font-size: 3rem;
+            }
+            .prose {
+                width: calc(100% - 2em);
+                max-width: calc(100% - 2em);
+                margin: auto;
+                padding: 1em;
+                color: rgb(var(--gray-dark));
+            }
+            .meta {
+                margin-bottom: 0.5em;
+                padding: 0.5em 0;
+                text-align: center;
+                line-height: 1;
+            }
+            .date {
+                margin-bottom: 0.5em;
+                color: rgb(var(--gray));
+            }
+            .last-updated-on {
+                font-style: italic;
+            }
+            hr {
+                border: none;
+                border-top: 1px solid rgba(var(--gray), 0.3);
+                margin: 0.5em 0;
+            }
+            @media (max-width: 720px) {
+                .title-card {
+                    min-height: 240px;
+                    padding: 1.5em;
+                    margin: 1em auto;
+                }
+                .title-card h1 {
+                    font-size: 2.2rem;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <Header />
+        <main>
+            <article>
+                <div class="title-card">
+                    <h1>{title}</h1>
+                </div>
+                <div class="prose">
+                    <div class="meta">
+                        <!-- <div class="date">
+                            <FormattedDate date={pubDate} />
+                            {
+                                updatedDate && (
+                                    <div class="last-updated-on">
+                                        Last updated on <FormattedDate date={updatedDate} />
+                                    </div>
+                                )
+                            }
+                        </div> -->
+                        <hr />
+                    </div>
+                    <slot />
+                </div>
+            </article>
+        </main>
+        <Footer />
+    </body>
+</html>

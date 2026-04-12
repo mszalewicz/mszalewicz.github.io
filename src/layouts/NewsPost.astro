@@ -1,0 +1,129 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+
+type Props = CollectionEntry<"news">["data"];
+
+const { title, links } = Astro.props;
+---
+
+<html lang="en">
+    <head>
+        <BaseHead title={title} description={`News compilation: ${title}`} />
+        <style>
+            main {
+                max-width: calc(100% - 2em);
+                width: 950px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .prose {
+                width: calc(100% - 2em);
+                max-width: calc(100% - 2em);
+                margin: auto;
+                padding: 1em;
+                color: rgb(var(--gray-dark));
+            }
+            .title {
+                margin-bottom: 1em;
+                padding: 1em 0;
+                text-align: center;
+                line-height: 1;
+            }
+            .title h1 {
+                margin: 0 0 0.5em 0;
+                color: #2337ff;
+            }
+            .date {
+                margin-bottom: 0.5em;
+                color: rgb(var(--gray));
+            }
+            .last-updated-on {
+                font-style: italic;
+            }
+            .links-list {
+                list-style: none;
+                padding: 0;
+                margin: 2em 0;
+            }
+            .link-item {
+                margin-bottom: 2em;
+                padding: 1.5em;
+                border: 1px solid rgba(var(--gray), 0.3);
+                border-radius: 12px;
+                transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            }
+            .link-item:hover {
+                box-shadow: var(--box-shadow);
+                border-color: rgb(var(--accent));
+            }
+            .link-item {
+                display: block;
+                text-decoration: none;
+                color: inherit;
+                background: linear-gradient(135deg, #ffffff 15%, #9c9ca0 85%);
+            }
+            .link-item-title {
+                color: #2337ff;
+                font-size: 1.25em;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 0.5em;
+            }
+            .link-item:hover .link-item-title {
+                text-decoration: underline;
+            }
+            .link-description {
+                color: rgb(var(--gray-dark));
+                line-height: 1.6;
+                margin: 0;
+            }
+            .external-icon::after {
+                content: "↗";
+                margin-left: 0.3em;
+                font-size: 0.8em;
+            }
+            .entry-content {
+                margin-bottom: 2em;
+                line-height: 1.6;
+            }
+            hr {
+                border: none;
+                border-top: 1px solid rgba(var(--gray), 0.3);
+                margin: 2em 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <Header />
+        <main>
+            <article>
+                <div class="prose">
+                    <div class="title">
+                        <h1>{title}</h1>
+                        <hr />
+                    </div>
+                    
+                    <div class="entry-content">
+                        <slot />
+                    </div>
+                    
+                    <ul class="links-list">
+                        {links.map((link) => (
+                            <li>
+                                <a href={link.url} target="_blank" rel="noopener noreferrer" class="link-item">
+                                    <span class="link-item-title external-icon">{link.title}</span>
+                                    <p class="link-description">{link.description}</p>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </article>
+        </main>
+        <Footer />
+    </body>
+</html>

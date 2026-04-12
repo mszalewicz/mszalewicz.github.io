@@ -1,0 +1,142 @@
+---
+import { getCollection } from "astro:content";
+import BaseHead from "../../components/BaseHead.astro";
+import Footer from "../../components/Footer.astro";
+import Header from "../../components/Header.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+
+const posts = (await getCollection("blog")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+        <style>
+            main {
+                width: 800px;
+            }
+            ul {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 2rem;
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+            }
+            ul li {
+                width: calc(50% - 1rem);
+            }
+            ul li * {
+                text-decoration: none;
+                transition: 0.2s ease;
+            }
+            ul li:first-child {
+                width: 100%;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+            ul li:first-child a {
+                min-height: 320px;
+            }
+            ul li a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 260px;
+                padding: 1.5em;
+                border: 1px solid rgba(var(--gray), 0.3);
+                border-radius: 12px;
+                background: linear-gradient(135deg, #ffffff 15%, #9c9ca0 85%);
+                text-align: center;
+            }
+            ul li a:hover {
+                box-shadow: var(--box-shadow);
+                border-color: rgb(var(--accent));
+            }
+            ul li a h4.title {
+                margin: 0;
+                color: #2337ff;
+                line-height: 1.2;
+                /* Font size will be set dynamically via JavaScript */
+            }
+            ul li a:hover h4.title {
+                color: #2337ff;
+            }
+            h2 {
+                text-align: center;
+                margin-bottom: 1.5em;
+            }
+            @media (max-width: 720px) {
+                ul {
+                    gap: 0.5em;
+                }
+                ul li {
+                    width: 100%;
+                    text-align: center;
+                }
+                ul li:first-child {
+                    margin-bottom: 0;
+                }
+                ul li:first-child a {
+                    min-height: 240px;
+                }
+                ul li a {
+                    min-height: 200px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <Header />
+        <main>
+            <section>
+                <ul>
+                    {
+                        posts.map((post, index) => (
+                            <li class={index === 0 ? "first-post" : ""}>
+                                <a href={`/blog/${post.id}/`}>
+                                    <h4 class="title" data-title-length={post.data.title.length}>{post.data.title}</h4>
+                                </a>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </section>
+        </main>
+        <Footer />
+        <script>
+            // Dynamic font sizing based on title length
+            // Goal: text takes up ~70% of container width
+            function adjustFontSizes() {
+                const titles = document.querySelectorAll('.title[data-title-length]');
+                titles.forEach(title => {
+                    const length = parseInt(title.getAttribute('data-title-length'));
+                    const isFirst = title.closest('li')?.classList.contains('first-post');
+                    
+                    // Get actual container width
+                    const container = title.closest('a');
+                    const containerWidth = container ? container.clientWidth - 48 : (isFirst ? 750 : 350); // minus padding
+                    
+                    // Calculate optimal font size for ~70% coverage
+                    // Average char width at 1rem is roughly 10px for this font
+                    const targetWidth = containerWidth * 0.7;
+                    const neededSize = (targetWidth / length) / 10; // divide by approx char width in px at 1rem
+                    
+                    // Clamp to reasonable range - LARGER sizes
+                    const minSize = isFirst ? 3.0 : 2.0;  // minimum rem
+                    const maxSize = isFirst ? 6.0 : 4.0;  // maximum rem
+                    const finalSize = Math.max(minSize, Math.min(maxSize, neededSize));
+                    
+                    title.style.fontSize = finalSize + 'rem';
+                });
+            }
+            
+            // Run on load and resize
+            adjustFontSizes();
+            window.addEventListener('resize', adjustFontSizes);
+        </script>
+    </body>
+</html>

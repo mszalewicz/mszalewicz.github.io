@@ -1,0 +1,101 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import Header from "../components/Header.astro";
+
+type Props = CollectionEntry<"blog">["data"];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+---
+
+<html lang="en">
+    <head>
+        <BaseHead title={title} description={description} />
+        <style>
+            main {
+                max-width: calc(100% - 2em);
+                width: 950px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-image {
+                width: 75%;
+                margin: 1em auto 0.5em;
+            }
+            .hero-image img {
+                display: block;
+                margin: 0 auto;
+                border-radius: 12px;
+                box-shadow: var(--box-shadow);
+            }
+            .prose {
+                width: calc(100% - 2em);
+                max-width: calc(100% - 2em);
+                margin: auto;
+                padding: 1em;
+                color: rgb(var(--gray-dark));
+            }
+            .meta {
+                margin-bottom: 0.5em;
+                padding: 0.5em 0;
+                text-align: center;
+                line-height: 1;
+            }
+            .date {
+                margin-bottom: 0.5em;
+                color: rgb(var(--gray));
+            }
+            .last-updated-on {
+                font-style: italic;
+            }
+            hr {
+                border: none;
+                border-top: 1px solid rgba(var(--gray), 0.3);
+                margin: 0.5em 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <Header />
+        <main>
+            <article>
+                <div class="hero-image">
+                    {
+                        heroImage && (
+                            <Image
+                                src={heroImage}
+                                alt="Title of the post"
+                                widths={[400, 800, 1020, 2040]}
+                                sizes={`(max-width: 1020px) 100vw, 1020px`}
+                                quality="high"
+                                loading="eager"
+                                fetchpriority="high"
+                            />
+                        )
+                    }
+                </div>
+                <div class="prose">
+                    <div class="meta">
+                        <div class="date">
+                            <FormattedDate date={pubDate} />
+                            {
+                                updatedDate && (
+                                    <div class="last-updated-on">
+                                        Last updated on <FormattedDate date={updatedDate} />
+                                    </div>
+                                )
+                            }
+                        </div>
+                        <hr />
+                    </div>
+                    <slot />
+                </div>
+            </article>
+        </main>
+        <Footer />
+    </body>
+</html>
