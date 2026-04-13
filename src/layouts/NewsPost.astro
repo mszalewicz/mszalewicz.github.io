@@ -27,7 +27,7 @@ const { title, links } = Astro.props;
                 color: rgb(var(--gray-dark));
             }
             .title {
-                margin-bottom: 1em;
+                /*margin-bottom: 1em;*/
                 padding: 1em 0;
                 text-align: center;
                 line-height: 1;
@@ -53,7 +53,9 @@ const { title, links } = Astro.props;
                 padding: 1.5em;
                 border: 1px solid rgba(var(--gray), 0.3);
                 border-radius: 12px;
-                transition: box-shadow 0.2s ease, border-color 0.2s ease;
+                transition:
+                    box-shadow 0.2s ease,
+                    border-color 0.2s ease;
             }
             .link-item:hover {
                 box-shadow: var(--box-shadow);
@@ -89,10 +91,20 @@ const { title, links } = Astro.props;
                 margin-bottom: 2em;
                 line-height: 1.6;
             }
+            ul {
+                margin-top: 0px !important;
+            }
             hr {
                 border: none;
                 border-top: 1px solid rgba(var(--gray), 0.3);
                 margin: 2em 0;
+            }
+            @media (max-width: 720px) {
+                hr {
+                    border: none;
+                    border-top: 1px solid rgba(var(--gray), 0.3);
+                    margin: 1em 0;
+                }
             }
         </style>
     </head>
@@ -106,20 +118,29 @@ const { title, links } = Astro.props;
                         <h1>{title}</h1>
                         <hr />
                     </div>
-                    
-                    <div class="entry-content">
+
+                    <!-- <div class="entry-content">
                         <slot />
-                    </div>
-                    
+                    </div> -->
+
                     <ul class="links-list">
-                        {links.map((link) => (
-                            <li>
-                                <a href={link.url} target="_blank" rel="noopener noreferrer" class="link-item">
-                                    <span class="link-item-title external-icon">{link.title}</span>
-                                    <p class="link-description">{link.description}</p>
-                                </a>
-                            </li>
-                        ))}
+                        {
+                            links.map((link) => (
+                                <li>
+                                    <a
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="link-item"
+                                    >
+                                        <span class="link-item-title external-icon">
+                                            {link.title}
+                                        </span>
+                                        <p class="link-description">{link.description}</p>
+                                    </a>
+                                </li>
+                            ))
+                        }
                     </ul>
                 </div>
             </article>

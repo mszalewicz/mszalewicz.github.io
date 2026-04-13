@@ -6,7 +6,9 @@ import HeaderLink from "./HeaderLink.astro";
 <header>
     <nav>
         {/*<h2><a href="/">{SITE_TITLE}</a></h2>*/}
-        <div class="clear-element"></div>
+        <a href="/" class="favicon-link">
+            <img src="/favicon.png" alt="Home" class="favicon" />
+        </a>
         <div class="internal-links" style="margin: auto;">
             <HeaderLink href="/">Home</HeaderLink>
             <HeaderLink href="/blog">Blog</HeaderLink>
@@ -75,8 +77,16 @@ import HeaderLink from "./HeaderLink.astro";
         text-decoration: none;
         border-bottom-color: var(--accent);
     }
-    .clear-element {
-        width: 156px;
+    .favicon-link {
+        display: flex;
+        align-items: center;
+        padding: 0 !important;
+    }
+    .favicon {
+        height: 53px;
+        width: auto;
+        border-radius: 0;
+        display: block;
     }
     .social-links,
     .social-links a {
@@ -86,7 +96,7 @@ import HeaderLink from "./HeaderLink.astro";
         .social-links {
             display: none;
         }
-        .clear-element {
+        .favicon {
             display: none;
         }
     }
