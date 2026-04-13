@@ -16,7 +16,7 @@
         0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
         0 16px 32px rgba(var(--gray), 33%);
 }
-@font-face {
+/*@font-face {
     font-family: "Atkinson";
     src: url("/fonts/atkinson-regular.woff") format("woff");
     font-weight: 400;
@@ -29,7 +29,7 @@
     font-weight: 700;
     font-style: normal;
     font-display: swap;
-}
+}*/
 ::selection {
     background-color: #fff000; /* Changes the background (e.g., Gold) */
     color: #000000; /* Changes the text color (e.g., Black) */
@@ -97,6 +97,10 @@ a:hover {
 }
 p {
     margin-bottom: 1rem;
+}
+.prose {
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 .prose p {
     margin-bottom: 2rem;

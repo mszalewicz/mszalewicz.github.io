@@ -18,6 +18,11 @@ const newsEntries = (await getCollection("news")).sort(
             main {
                 width: 800px;
             }
+            @media (min-width: 1440px) {
+                main {
+                    width: 1100px;
+                }
+            }
             ul {
                 display: flex;
                 flex-wrap: wrap;

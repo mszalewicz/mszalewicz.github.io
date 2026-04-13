@@ -18,6 +18,11 @@ const posts = (await getCollection("blog")).sort(
             main {
                 width: 800px;
             }
+            @media (min-width: 1440px) {
+                main {
+                    width: 1100px;
+                }
+            }
             ul {
                 display: flex;
                 flex-wrap: wrap;
@@ -98,7 +103,9 @@ const posts = (await getCollection("blog")).sort(
                         posts.map((post, index) => (
                             <li class={index === 0 ? "first-post" : ""}>
                                 <a href={`/blog/${post.id}/`}>
-                                    <h4 class="title" data-title-length={post.data.title.length}>{post.data.title}</h4>
+                                    <h4 class="title" data-title-length={post.data.title.length}>
+                                        {post.data.title}
+                                    </h4>
                                 </a>
                             </li>
                         ))
@@ -111,32 +118,36 @@ const posts = (await getCollection("blog")).sort(
             // Dynamic font sizing based on title length
             // Goal: text takes up ~70% of container width
             function adjustFontSizes() {
-                const titles = document.querySelectorAll('.title[data-title-length]');
-                titles.forEach(title => {
-                    const length = parseInt(title.getAttribute('data-title-length'));
-                    const isFirst = title.closest('li')?.classList.contains('first-post');
-                    
+                const titles = document.querySelectorAll(".title[data-title-length]");
+                titles.forEach((title) => {
+                    const length = parseInt(title.getAttribute("data-title-length"));
+                    const isFirst = title.closest("li")?.classList.contains("first-post");
+
                     // Get actual container width
-                    const container = title.closest('a');
-                    const containerWidth = container ? container.clientWidth - 48 : (isFirst ? 750 : 350); // minus padding
-                    
+                    const container = title.closest("a");
+                    const containerWidth = container
+                        ? container.clientWidth - 48
+                        : isFirst
+                          ? 750
+                          : 350; // minus padding
+
                     // Calculate optimal font size for ~70% coverage
                     // Average char width at 1rem is roughly 10px for this font
                     const targetWidth = containerWidth * 0.7;
-                    const neededSize = (targetWidth / length) / 10; // divide by approx char width in px at 1rem
-                    
+                    const neededSize = targetWidth / length / 10; // divide by approx char width in px at 1rem
+
                     // Clamp to reasonable range - LARGER sizes
-                    const minSize = isFirst ? 3.0 : 2.0;  // minimum rem
-                    const maxSize = isFirst ? 6.0 : 4.0;  // maximum rem
+                    const minSize = isFirst ? 3.0 : 2.0; // minimum rem
+                    const maxSize = isFirst ? 6.0 : 4.0; // maximum rem
                     const finalSize = Math.max(minSize, Math.min(maxSize, neededSize));
-                    
-                    title.style.fontSize = finalSize + 'rem';
+
+                    title.style.fontSize = finalSize + "rem";
                 });
             }
-            
+
             // Run on load and resize
             adjustFontSizes();
-            window.addEventListener('resize', adjustFontSizes);
+            window.addEventListener("resize", adjustFontSizes);
         </script>
     </body>
 </html>

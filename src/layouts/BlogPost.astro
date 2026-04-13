@@ -20,6 +20,14 @@ const { title, description, pubDate, updatedDate } = Astro.props;
                 margin-left: auto;
                 margin-right: auto;
             }
+            @media (min-width: 1440px) {
+                main {
+                    max-width: calc(100% - 2em);
+                    width: 1150px;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+            }
             .title-card {
                 display: flex;
                 align-items: center;
