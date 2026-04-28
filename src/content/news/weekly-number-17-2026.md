@@ -1,20 +1,24 @@
 ---
-title: "Weekly News - #17 2026"
+title: "Weekly News - #17"
 pubDate: 2026-04-20
 links:
-    - title: "Automation That Screams Joy"
-      url: "https://tigerbeetle.com/blog/2026-04-14-automation-screams-joy/"
-      description: "Custom automation that lives outside standard CI platforms should be kept in the same repository as the main project and written in the same language to eliminate the friction of context switching and cross-team dependencies. The system is designed to auto-deploy through a self-bootstrapping script that continuously clones and runs the latest main branch, which means any developer with push access can change production automation through a simple pull request without ops involvement."
-    - title: "unshare(1)"
-      url: "https://man7.org/linux/man-pages/man1/unshare.1.html"
-      description: "The unshare command creates isolated namespaces that virtualize core system resources—PIDs, network stacks, mount points, and user identities—allowing processes to operate with entirely separate views of the system than their parents. While container runtimes orchestrate multiple namespaces behind complex abstractions, unshare exposes this capability directly through the user namespace, which means unprivileged users can create lightweight sandboxes and gain root privileges within them without elevated permissions on the host."
-    - title: "How (and why) we rewrote our production C++ frontend infrastructure in Rust"
-      url: "https://blog.nearlyfreespeech.net/2026/04/17/how-and-why-we-rewrote-our-production-c-frontend-infrastructure-in-rust/"
-      description: "A frontend system processing every customer request was rewritten from C++ to Rust despite functioning perfectly, driven by the friction of extending aging code in a language where safety is optional. Given that any bug could simultaneously affect all customers, the migration was validated through exhaustive testing including side-by-side proxy comparison of live traffic before the Rust version became authoritative."
-    - title: "Jujutsu megamerges for fun and profit"
-      url: "https://isaaccorbrey.com/notes/jujutsu-megamerges-for-fun-and-profit"
-      description: "The megamerge workflow uses an octopus merge commit as the parent of all active branches, allowing developers to simultaneously work on every stream of code they care about in a single combined context. By layering changes on top of this megamerge and using commands like `absorb` and `squash` to redistribute work to specific branches, the system eliminates context-switching friction and prevents surprise merge conflicts without requiring developers to push the merge commit itself."
-    # - title: ""
-    #   url: "https://isaaccorbrey.com/notes/jujutsu-megamerges-for-fun-and-profit"
-    #   description: ""
+    - title: "Logging Sucks"
+      url: "https://loggingsucks.com/"
+      description: "Traditional logging is optimized for easy emission rather than effective debugging, which means developers spend hours grepping through thousands of context-free string messages that cannot answer basic questions about user-facing failures. The fix is emitting a single wide event per request containing all relevant business and technical context, enabling sub-second structured queries that transform incident response from blind archaeology into precise analytics."
+
+    - title: "Sharing details on a recent incident impacting one of our customers (Google Cloud)"
+      url: "https://cloud.google.com/blog/products/infrastructure/details-of-google-cloud-gcve-incident"
+      description: "Older story but a valuable lesson. A single blank parameter in a manual internal provisioning tool caused a customer's entire Google Cloud VMware Environment to be automatically deleted after a fixed one-year term, forcing days of around-the-clock recovery effort."
+
+    - title: "Post Mortem: axios npm supply chain compromise"
+      url: "https://github.com/axios/axios/issues/10636"
+      description: "The axios supply chain compromise exposed how publishing critical packages from personal maintainer accounts invites complete supply chain takeover, as a compromised developer machine allowed malicious versions to install system-level remote access trojans on npm users for three hours. Because no automated detection existed for unauthorized publishes, the community alone served as the safeguard, which means the only durable defense is replacing personal credentials with OIDC-based publishing and immutable release pipelines that make individual account compromise irrelevant to package integrity."
+
+    - title: "Kimi K2.6: Advancing Open-Source Coding"
+      url: "https://www.kimi.com/blog/kimi-k2-6"
+      description: "The fundamental shift in Kimi K2.6 is the move from question-answering to sustained autonomous execution, enabling single runs that span thousands of tool calls and multiple days across coding, design, and systems operations. Given that the architecture scales to 300 concurrent heterogeneous agents executing 4,000 coordinated steps, the system is designed to decompose complex tasks into parallel subtasks executed by specialized agents that dynamically recover from failure without human intervention."
 ---
+
+    - title: ""
+      url: ""
+      description: ""

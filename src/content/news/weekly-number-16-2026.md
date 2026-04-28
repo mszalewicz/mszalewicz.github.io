@@ -1,14 +1,18 @@
 ---
-title: "Weekly News - #16 2026"
-pubDate: 2024-01-15
+title: "Weekly News - #16"
+pubDate: 2026-04-13
 links:
-    - title: "The machines are fine. I'm worried about us."
-      url: "https://ergosphere.blog/posts/the-machines-are-fine"
-      description: "True expertise is created through years of work, developing an instinct. While agentic tools can synthesize professional drafts in days, they lack memory of failure required to catch the subtle errors that only a seasoned human supervisor can detect."
-    - title: "Best Practices for Secure Error Handling in Go"
-      url: "https://blog.jetbrains.com/go/2026/03/02/secure-go-error-handling-best-practices/"
-      description: "Errors in Go are just values, which means they'll leak your database schemas, file paths, and credentials straight into logs if you let them. The difference between secure and exposed systems comes down to data classification: structured logging with explicit field selection, redaction at the middleware layer, and strict separation between what gets recorded for debugging versus what crosses service boundaries."
-    - title: "How NASA Built Artemis II’s Fault-Tolerant Computer"
-      url: "https://cacm.acm.org/news/how-nasa-built-artemis-iis-fault-tolerant-computer/"
-      description: "NASA has detailed the computing architecture for the Artemis II mission, moving away from the electromechanical fallbacks of the Apollo era toward a software-defined, ultra-resilient system. Given that hardware repair is impossible in deep space, the system is designed to handle radiation-induced faults without downtime."
+    - title: "I don't want your PRs anymore"
+      url: "https://dpc.pw/posts/i-dont-want-your-prs-anymore/"
+      description: "The writing of code is no longer the bottleneck in software development since LLMs can now generate implementations faster than humans, which means unknown contributors' pull requests create more friction than value through review cycles, style mismatches, and security risks. Given that maintainers are now constrained by understanding existing code, designing solutions, and reviewing output rather than typing, contributors create more value by providing detailed bug reports, design discussions, reference prompts for LLMs, or simply forking and maintaining their own versions rather than submitting code for merge."
+    - title: "Get Your Reps"
+      url: "https://www.alejandro.pe/writing/sail-muddy-lessons"
+      description: "Building a multiplayer browser cannot achieve product-market fit through technical sophistication alone when users cannot articulate what specific workflow it improves. Given that Chrome and Slack already solve their respective problems adequately, the combined friction of existing tools was never painful enough to justify switching to a product that lacked a clear, legible use case."
+    - title: "Finishing Things"
+      url: "https://ratfactor.com/finishing-things"
+      description: "From all of the posts about finishing projects, this one resonated with me."
 ---
+
+    - title: ""
+      url: ""
+      description: ""
