@@ -5,9 +5,16 @@ import Footer from "../../components/Footer.astro";
 import Header from "../../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 
-const newsEntries = (await getCollection("news")).sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+// const newsEntries = (await getCollection("news")).sort(
+//     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+// );
+const newsEntries = (
+    await getCollection("news", ({ data }) => {
+        // Show everything in DEV mode;
+        // In PROD, only show if pubDate is today or earlier
+        return import.meta.env.DEV || data.pubDate <= new Date();
+    })
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <!doctype html>
