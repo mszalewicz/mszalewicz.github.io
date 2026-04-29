@@ -16,14 +16,15 @@ const { title, description, pubDate, updatedDate } = Astro.props;
         <style>
             main {
                 max-width: calc(100% - 2em);
-                width: 950px;
+                width: 870px;
                 margin-left: auto;
                 margin-right: auto;
             }
             @media (min-width: 1440px) {
                 main {
                     max-width: calc(100% - 2em);
-                    width: 1150px;
+                    /*width: 1150px;*/
+                    width: 950px;
                     margin-left: auto;
                     margin-right: auto;
                 }
@@ -34,7 +35,7 @@ const { title, description, pubDate, updatedDate } = Astro.props;
                 justify-content: center;
                 min-height: 320px;
                 padding: 2em;
-                margin: 1em auto 0.5em;
+                margin: 2em auto 0.5em;
                 border: 1px solid rgba(var(--gray), 0.3);
                 border-radius: 12px;
                 background: linear-gradient(135deg, #ffffff 15%, #9c9ca0 85%);
@@ -44,15 +45,15 @@ const { title, description, pubDate, updatedDate } = Astro.props;
             }
             .title-card h1 {
                 margin: 0;
-                color: #2337ff;
+                color: black;
                 line-height: 1.2;
                 font-size: 3rem;
             }
             .prose {
-                width: calc(100% - 2em);
-                max-width: calc(100% - 2em);
+                /*width: calc(100% - 2em);*/
+                /*max-width: calc(100% - 2em);*/
                 margin: auto;
-                padding: 1em;
+                padding-bottom: 2em;
                 color: rgb(var(--gray-dark));
             }
             .meta {

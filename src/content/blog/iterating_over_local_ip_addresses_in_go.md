@@ -23,7 +23,7 @@ Currently, most routers use the **192.168.1.0/24** subnet for local networks. Th
 1. To gain experience and build tools for situations where the address space is unknown ahead of time.
 2. To make the process adaptable for future support of IPv6 (i.e. fe80::/64).
 
-### Building logic in Go
+##### Building logic in Go
 
 First, we need to identify the network interfaces available on the machine. We retrieve a list of interfaces that represent the various network adapters present, such as Ethernet or Wi-Fi:
 
@@ -91,7 +91,7 @@ for _, intrface := range interfaces {
 }
 ```
 
-### CIDR and subnet mask
+##### CIDR and subnet mask
 
 If you're already famililar with concepts, jumpt to [next section](#code_continued)
 
@@ -155,7 +155,7 @@ Great, now we know two ways to write a subnet mask, but what does it actually me
 
 ```
 
-### Code continued <a id="code_continued"></a>
+##### Code continued <a id="code_continued"></a>
 
 Now that we understand masking, we can implement the search for candidate entries to check if they are instances of our application within the local network. In brief, we create a goroutine for each valid address within the range defined by the subnet mask. Each goroutine attempts to establish a TCP connection on port `44444`. This port was chosen to avoid conflicts with known reserved ports, but it might be changed in the final version of the application. If a valid connection is established, we print the candidate network address for further verification.
 
@@ -279,6 +279,6 @@ The next call to incrementIP() will reset the last byte to 0. However, since the
 
 The process will continue until it reaches `192.168.255.255`, as the next value falls outside the scope of our example network. As you can see, the entire process of iterating through the given address space is achieved in a concise and self-describing manner. This approach efficiently handles address progression without requiring complex logic. The simplicity and clarity of the method make it easy to understand and implement in context involving IP address manipulation.
 
-### Footnotes
+##### Footnotes
 
 - In the code, I spawn a new goroutine for each address that needs to be checked. It’s important to note that this approach can put a strain on your system resources. For a typical local network, there are up to 254 addresses to check, meaning the same number of goroutines may be created in the worst-case scenario. This is manageable. However, since each goroutine waits for a TCP response, their lifecycle is extended, which can create bottlenecks. During testing with a larger network like `192.168.0.0/16`, the program ran into crashes. In this case, theoretically as many as 65,534 goroutines could be created. A more efficient strategy would involve using a goroutine pool, where goroutines are recycled as tasks are completed. For simplicity and to keep the focus on the program's core logic, I decided not to implement a goroutine pool in this example.

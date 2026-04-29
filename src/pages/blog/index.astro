@@ -5,9 +5,17 @@ import Footer from "../../components/Footer.astro";
 import Header from "../../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 
-const posts = (await getCollection("blog")).sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+// const posts = (await getCollection("blog")).sort(
+//     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+// );
+
+const posts = (
+    await getCollection("blog", ({ data }) => {
+        // Show everything in DEV mode;
+        // In PROD, only show if pubDate is today or earlier
+        return import.meta.env.DEV || data.pubDate <= new Date();
+    })
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <!doctype html>
@@ -17,6 +25,8 @@ const posts = (await getCollection("blog")).sort(
         <style>
             main {
                 width: 800px;
+                margin-top: 2em;
+                margin-bottom: 2em;
             }
             @media (min-width: 1440px) {
                 main {
@@ -63,12 +73,12 @@ const posts = (await getCollection("blog")).sort(
             }
             ul li a h4.title {
                 margin: 0;
-                color: #2337ff;
+                color: black;
                 line-height: 1.2;
                 /* Font size will be set dynamically via JavaScript */
             }
             ul li a:hover h4.title {
-                color: #2337ff;
+                color: #7e1dfb;
             }
             h2 {
                 text-align: center;

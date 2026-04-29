@@ -12,7 +12,7 @@ Recent interest in SQLite has surged, particularly due to its fit for two key te
 
 More and more people, myself included, are becoming intrigued by SQLite. However, for those transitioning from other database systems, there are a few surprising differences to discover.
 
-### Weak out of the box guarantees
+##### Weak out of the box guarantees
 
 Have you ever wanted to insert a text value into a column designated as a boolean, only to have MySQL prevent it? Me neither. But we also can't guarantee that a new intern won’t get overly enthusiastic one day or that an unexpected parsing bug might someday return a text value instead of a boolean and attempt to insert it into the database. While other databases enforce data types, SQLite, by default, doesn’t prevent inserting different types into columns than the defined type might suggest—unless properly configured. So, let's put this to the test. We will create simple table for products:
 
@@ -112,7 +112,7 @@ will result in SQLite rejecting it:
 Runtime error: NOT NULL constraint failed: product.id (19)
 ```
 
-### Conclusion
+##### Conclusion
 
 While the solution to these issues is straightforward, cleaning up the mess left by subtle bugs caused by SQLite’s default behavior can be a challenging and time-consuming process. These were just the first set of the most surprising issues I encountered in my experience with SQLite.
 
