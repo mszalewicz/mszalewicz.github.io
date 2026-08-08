@@ -1,0 +1,174 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+import Footer from "../../components/Footer.astro";
+import Header from "../../components/Header.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+        <style>
+            main {
+                width: 800px;
+                margin-top: 2em;
+                margin-bottom: 2em;
+            }
+            @media (min-width: 1440px) {
+                main {
+                    width: 1100px;
+                }
+            }
+            ul {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 2rem;
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+            }
+            ul li {
+                width: calc(50% - 1rem);
+            }
+            ul li * {
+                text-decoration: none;
+                transition: 0.2s ease;
+            }
+            ul li:first-child {
+                width: 100%;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+            ul li:first-child a {
+                min-height: 320px;
+            }
+            ul li a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 260px;
+                padding: 1.5em;
+                border: 1px solid rgba(var(--gray), 0.3);
+                border-radius: 12px;
+                background: linear-gradient(135deg, #ffffff 15%, #9c9ca0 85%);
+                text-align: center;
+            }
+            ul li a:hover {
+                box-shadow: var(--box-shadow);
+                border-color: rgb(var(--accent));
+            }
+            ul li a h4.title {
+                margin: 0;
+                color: black;
+                line-height: 1.2;
+                /* Font size will be set dynamically via JavaScript */
+            }
+            ul li a:hover h4.title {
+                color: #7e1dfb;
+            }
+            h2 {
+                text-align: center;
+                margin-bottom: 1.5em;
+            }
+            @media (max-width: 720px) {
+                ul {
+                    gap: 0.5em;
+                }
+                ul li {
+                    width: 100%;
+                    text-align: center;
+                }
+                ul li:first-child {
+                    margin-bottom: 0;
+                }
+                ul li:first-child a {
+                    min-height: 240px;
+                }
+                ul li a {
+                    min-height: 200px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <Header />
+        <main>
+            <section>
+                <div>
+                    <strong>Jajko</strong><br>
+                    <strong>Autor: Andy Weir</strong><br><br>
+                    Byłeś w drodze do domu, kiedy umarłeś.<br><br>
+                    To był wypadek samochodowy. Nic szczególnie niezwykłego, ale mimo to śmiertelny. Zostawiłeś żonę i dwoje dzieci. Śmierć była bezbolesna. Ratownicy medyczni robili, co mogli, żeby cię uratować, ale bez skutku. Twoje ciało było tak doszczętnie zmasakrowane, że lepiej, że umarłeś, uwierz mi.<br><br>
+                    I właśnie wtedy mnie spotkałeś.<br><br>
+                    „Co… co się stało?” zapytałeś. „Gdzie jestem?”<br><br>
+                    „Umarłeś” — powiedziałem rzeczowo. Nie było sensu owijać w bawełnę.<br><br>
+                    „Była… była ciężarówka i wpadła w poślizg…”<br><br>
+                    „Tak” — powiedziałem.<br><br>
+                    „Ja… ja umarłem?”<br><br>
+                    „Tak. Ale nie przejmuj się tym. Każdy umiera” — powiedziałem.<br><br>
+                    Rozejrzałeś się. Wokół nie było niczego. Tylko ty i ja. „Co to za miejsce?” zapytałeś. „Czy to życie po śmierci?”<br><br>
+                    „Mniej więcej” — powiedziałem.<br><br>
+                    „Jesteś bogiem?” zapytałeś.<br><br>
+                    „Tak” — odpowiedziałem. „Jestem Bogiem.”<br><br>
+                    „Moje dzieci… moja żona” — powiedziałeś.<br><br>
+                    „Co z nimi?”<br><br>
+                    „Czy wszystko będzie z nimi w porządku?”<br><br>
+                    „Właśnie to lubię widzieć” — powiedziałem. „Dopiero co umarłeś, a najbardziej martwisz się o swoją rodzinę. To dobrze o tobie świadczy.”<br><br>
+                    Patrzyłeś na mnie z fascynacją. W twoich oczach nie wyglądałem jak Bóg. Wyglądałem po prostu jak jakiś mężczyzna. Albo może kobieta. Jakaś bliżej nieokreślona postać budząca respekt. Bardziej nauczyciel ze szkoły podstawowej niż Wszechmogący.<br><br>
+                    „Nie martw się” — powiedziałem. „Dadzą sobie radę. Twoje dzieci będą cię pamiętać jako idealnego pod każdym względem. Nie zdążyły nabrać do ciebie pogardy. Twoja żona będzie płakać na zewnątrz, ale w głębi duszy poczuje ulgę. Prawdę mówiąc, wasze małżeństwo się rozpadało. Jeśli to jakieś pocieszenie, będzie miała ogromne wyrzuty sumienia z powodu tej ulgi.”<br><br>
+                    „Och” — powiedziałeś. „Więc co teraz? Idę do nieba albo piekła czy coś w tym rodzaju?”<br><br>
+                    „Ani jedno, ani drugie” — powiedziałem. „Zostaniesz reinkarnowany.”<br><br>
+                    „Aha” — powiedziałeś. „Czyli Hindusi mieli rację.”<br><br>
+                    „Wszystkie religie mają rację na swój własny sposób” — powiedziałem. „Przejdź się ze mną.”<br><br>
+                    Poszedłeś za mną, gdy przemierzaliśmy pustkę. „Dokąd idziemy?”<br><br>
+                    „Nigdzie konkretnie” — powiedziałem. „Po prostu przyjemnie jest spacerować podczas rozmowy.”<br><br>
+                    „Więc jaki to ma sens?” zapytałeś. „Kiedy urodzę się na nowo, będę po prostu czystą kartą, prawda? Niemowlęciem. Więc wszystkie moje doświadczenia i wszystko, co zrobiłem w tym życiu, nie będą miały znaczenia.”<br><br>
+                    „Wcale nie!” — powiedziałem. „Masz w sobie całą wiedzę i doświadczenia ze wszystkich swoich poprzednich żyć. Po prostu teraz ich nie pamiętasz.”<br><br>
+                    Przestałem iść i chwyciłem cię za ramiona. „Twoja dusza jest wspanialsza, piękniejsza i ogromniejsza, niż jesteś w stanie sobie wyobrazić. Ludzki umysł może pomieścić jedynie maleńki ułamek tego, czym jesteś. To jak zanurzenie palca w szklance wody, żeby sprawdzić, czy jest ciepła, czy zimna. Umieszczasz maleńką część siebie w naczyniu, a kiedy ją wyjmujesz, zabierasz ze sobą wszystkie doświadczenia, które zdobyła.<br><br>
+                    „Przez ostatnie 48 lat byłeś w człowieku, więc jeszcze się nie rozciągnąłeś i nie poczułeś reszty swojej ogromnej świadomości. Gdybyśmy zostali tutaj wystarczająco długo, zacząłbyś sobie wszystko przypominać. Ale nie ma sensu robić tego pomiędzy każdym życiem.”<br><br>
+                    „Więc ile razy byłem już reinkarnowany?”<br><br>
+                    „Och, wiele razy. Bardzo, bardzo wiele. I w mnóstwo różnych żyć” — powiedziałem. „Tym razem będziesz chińską chłopką w roku 540 naszej ery.”<br><br>
+                    „Chwila, co?” wyjąkałeś. „Wysyłasz mnie w przeszłość?”<br><br>
+                    „Cóż, technicznie rzecz biorąc, chyba tak. Czas, w takiej postaci, w jakiej go znasz, istnieje tylko w twoim wszechświecie. Tam, skąd pochodzę, rzeczy wyglądają inaczej.”<br><br>
+                    „Tam, skąd pochodzisz?” powiedziałeś.<br><br>
+                    „Oczywiście” — wyjaśniłem. „Skądś pochodzę. Z innego miejsca. I są tam inni tacy jak ja. Wiem, że będziesz chciał wiedzieć, jak tam jest, ale prawdę mówiąc, nie zrozumiałbyś.”<br><br>
+                    „Och” — powiedziałeś, trochę rozczarowany. „Ale chwila. Jeśli reinkarnuję się w innych miejscach w czasie, to mogłem kiedyś wejść w interakcję z samym sobą.”<br><br>
+                    „Oczywiście. Dzieje się tak cały czas. A ponieważ oba życia są świadome jedynie własnego czasu trwania, nawet nie wiesz, że to się dzieje.”<br><br>
+                    „Więc jaki jest sens tego wszystkiego?”<br><br>
+                    „Poważnie?” zapytałem. „Poważnie? Pytasz mnie o sens życia? Czy to nie trochę stereotypowe?”<br><br>
+                    „Cóż, to rozsądne pytanie” — nalegałeś.<br><br>
+                    Spojrzałem ci w oczy. „Sensem życia, powodem, dla którego stworzyłem cały ten wszechświat, jest to, żebyś dojrzał.”<br><br>
+                    „Masz na myśli ludzkość? Chcesz, żebyśmy dojrzeli?”<br><br>
+                    „Nie, tylko ty. Stworzyłem cały ten wszechświat dla ciebie. Z każdym nowym życiem rośniesz i dojrzewasz, stając się większym i potężniejszym intelektem.”<br><br>
+                    „Tylko ja? A co z całą resztą?”<br><br>
+                    „Nie ma nikogo innego” — powiedziałem. „W tym wszechświecie jesteśmy tylko ty i ja.”<br><br>
+                    Wpatrywałeś się we mnie bez wyrazu. „Ale wszyscy ludzie na Ziemi…”<br><br>
+                    „To wszystko ty. Różne twoje wcielenia.”<br><br>
+                    „Chwila. Jestem <em>każdym</em>!?”<br><br>
+                    „Teraz zaczynasz rozumieć” — powiedziałem, klepiąc cię gratulacyjnie po plecach.<br><br>
+                    „Jestem każdym człowiekiem, który kiedykolwiek żył?”<br><br>
+                    „Albo który kiedykolwiek będzie żył, tak.”<br><br>
+                    „Jestem Abrahamem Lincolnem?”<br><br>
+                    „I jesteś też Johnem Wilkesem Boothem” — dodałem.<br><br>
+                    „Jestem Hitlerem?” powiedziałeś, przerażony.<br><br>
+                    „I jesteś milionami ludzi, których zabił.”<br><br>
+                    „Jestem Jezusem?”<br><br>
+                    „I jesteś każdym, kto za nim podążał.”<br><br>
+                    Zamilkłeś.<br><br>
+                    „Za każdym razem, gdy kogoś krzywdziłeś” — powiedziałem — „krzywdziłeś samego siebie. Każdy dobry uczynek, jaki kiedykolwiek zrobiłeś, zrobiłeś dla samego siebie. Każda szczęśliwa i smutna chwila, której kiedykolwiek doświadczył jakikolwiek człowiek, była albo będzie doświadczona przez ciebie.”<br><br>
+                    Długo się nad tym zastanawiałeś.<br><br>
+                    „Dlaczego?” zapytałeś mnie. „Dlaczego to wszystko?”<br><br>
+                    „Ponieważ pewnego dnia staniesz się taki jak ja. Bo właśnie tym jesteś. Jesteś jednym z mojego rodzaju. Jesteś moim dzieckiem.”<br><br>
+                    „Wow” — powiedziałeś z niedowierzaniem. „Chcesz powiedzieć, że jestem bogiem?”<br><br>
+                    „Nie. Jeszcze nie. Jesteś płodem. Wciąż rośniesz. Kiedy przeżyjesz każde ludzkie życie na przestrzeni całego czasu, urośniesz na tyle, żeby się narodzić.”<br><br>
+                    „Więc cały wszechświat” — powiedziałeś — „to tylko…”<br><br>
+                    „Jajko” — odpowiedziałem. „A teraz czas, żebyś przeszedł do swojego następnego życia.”<br><br>
+                    I wysłałem cię w dalszą drogę.
+                </div>
+            </section>
+        </main>
+        <Footer />
+    </body>
+</html>
